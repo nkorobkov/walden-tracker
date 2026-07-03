@@ -39,19 +39,14 @@ body{
 header.top{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:22px}
 .top-text{min-width:0}
 .lake{
-  flex:none;width:66px;height:41px;margin-top:4px;
-  background:linear-gradient(150deg,#3aa0e6 0%,#1596b0 60%,#12808f 100%);
-  -webkit-mask:url(logo.png) center/contain no-repeat; mask:url(logo.png) center/contain no-repeat;
-  filter:drop-shadow(0 2px 5px rgba(21,150,176,.35));
-  transform:rotate(-3deg);
+  flex:none;height:8rem;width:auto;margin-top:4px;
+  filter:drop-shadow(0 2px 5px rgba(30,190,180,.38));
 }
-@media (prefers-color-scheme: dark){
-  .lake{background:linear-gradient(150deg,#4aa9ec 0%,#1ea6bf 60%,#178f9e 100%);
-    filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
-}
-@media(max-width:560px){ .lake{width:52px;height:32px} }
+@media (prefers-color-scheme: dark){ .lake{filter:drop-shadow(0 2px 8px rgba(0,0,0,.55))} }
+@media(max-width:560px){ .lake{height:40px;margin-top:2px} }
 h1{font-size:26px;font-weight:650;margin:0 0 6px;letter-spacing:-.01em}
 .sub{color:var(--ink-2);max-width:72ch;margin:0}
+a{color:var(--s1)}
 .sub a{color:inherit}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px}
 .seg button{
@@ -67,6 +62,7 @@ h1{font-size:26px;font-weight:650;margin:0 0 6px;letter-spacing:-.01em}
 .card h2{font-size:16px;font-weight:650;margin:0 0 2px}
 .card .desc{font-size:13px;color:var(--muted);margin:0 0 14px}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:18px}
+@media(max-width:560px){ .grid2{grid-template-columns:1fr} }
 .grid2 .card{margin-bottom:0}
 .cards-row{margin-bottom:18px}
 /* ---- planner ---- */
@@ -119,11 +115,20 @@ svg .dl{fill:var(--ink-2);font-weight:600}
 .day-lab .wd{color:var(--muted);font-weight:400;margin-left:4px}
 .day-lab .wx-ic{margin-left:7px;font-variant-numeric:normal}
 .day-lab .wx-t{margin-left:2px;color:var(--ink-2)}
+.day-lab .d-compact{display:none}
 .day-track{width:100%;height:22px;display:block}
 .day-seg{cursor:pointer}
 .day-seg:hover{opacity:.82}
 .dh-head{display:grid;grid-template-columns:196px 1fr;gap:10px;padding:0 6px 4px;font-size:11px;color:var(--muted)}
 .dh-head .ticks{display:flex;justify-content:space-between}
+/* mobile: compact date, no weather, narrow label -> more room for the bars */
+@media(max-width:560px){
+  .day-row,.dh-head{grid-template-columns:82px 1fr;gap:7px}
+  .day-lab .d-full{display:none}
+  .day-lab .d-compact{display:inline}
+  .day-lab .wx-mob-hide{display:none}
+  .day-lab .wd{margin-left:3px}
+}
 /* ---- event-log controls ---- */
 .log-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0 8px;font-size:12px}
 .log-controls label{display:inline-flex;gap:5px;align-items:center;color:var(--muted)}
@@ -168,7 +173,7 @@ footer{margin-top:26px;font-size:12px;color:var(--muted)}
     visitors — no walk-ins, no drop-offs — until enough people leave. This page estimates the odds from
     every closure announcement posted by <a href="https://x.com/waldenpondstate" rel="noopener">@waldenpondstate</a><span id="hdrStats"></span>.</p>
   </div>
-  <span class="lake" role="img" aria-label="Walden Pond outline"></span>
+  <img class="lake" src="favicon.png" alt="Walden Pond outline" width="411" height="412">
 </header>
 
 <!-- ============ USE CASE 1: planning a visit ============ -->
@@ -606,7 +611,7 @@ function renderCum(days){
   const DT0=7*60, DT1=19*60;
   const dx=t=>(Math.max(DT0,Math.min(DT1,t))-DT0)/(DT1-DT0)*1000;
   const head=el("div",{class:"dh-head"},host);
-  el("div",{},head,"day (earliest closure first)");
+  el("div",{style:"white-space:nowrap;overflow:hidden;text-overflow:ellipsis"},head,"day · earliest closure first");
   const ticks=el("div",{class:"ticks"},head);
   for(let h=7;h<=19;h+=3) el("span",{},ticks,fmtT(h*60).replace(" ",""));
   // earliest closure first; no-closure days last, then by date
@@ -618,12 +623,15 @@ function renderCum(days){
   for(const d of sorted){
     const row=el("div",{class:"day-row"},host);
     const dd=new Date(d.ds+"T12:00:00");
-    const lab=el("div",{class:"day-lab"},row,d.ds);
-    el("span",{class:"wd"},lab,dd.toLocaleDateString("en-US",{weekday:"short"}));
+    const lab=el("div",{class:"day-lab"},row);
+    el("span",{class:"d-full"},lab,d.ds);
+    const [yy,mm,ddn]=d.ds.split("-");
+    el("span",{class:"d-compact"},lab,`${yy.slice(2)}/${+mm}/${+ddn}`);
+    el("span",{class:"wd"},lab," "+dd.toLocaleDateString("en-US",{weekday:"short"}));
     const w=WX[d.ds];
     if(w){
-      el("span",{class:"wx-ic",title:wxLine(d.ds)},lab,wxIcon(d.ds));
-      el("span",{class:"wx-t"},lab,Math.round(w[0])+"°");
+      el("span",{class:"wx-ic wx-mob-hide",title:wxLine(d.ds)},lab,wxIcon(d.ds));
+      el("span",{class:"wx-t wx-mob-hide"},lab,Math.round(w[0])+"°");
     }
     const tk=svg("svg",{class:"day-track",viewBox:"0 0 1000 22",preserveAspectRatio:"none"},row);
     svg("line",{x1:0,x2:1000,y1:11,y2:11,stroke:cssv("--grid"),"stroke-width":1,"vector-effect":"non-scaling-stroke"},tk);

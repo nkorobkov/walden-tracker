@@ -4,3 +4,5 @@ __pycache__/
 raw_tweets*.jsonl
 .venv/
 .x_auth.json
+logo.svg
+.DS_Store
