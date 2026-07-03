@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Will Walden Pond be closed? — parking closure odds &amp; reopening times</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb;
+  --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --s1:#2a78d6; --s2:#1baf7a;
+  --seq100:#cde2fb; --seq150:#b7d3f6; --seq200:#9ec5f4; --seq250:#86b6ef;
+  --seq300:#6da7ec; --seq350:#5598e7; --seq400:#3987e5; --seq450:#2a78d6;
+  --seq500:#256abf; --seq550:#1c5cab; --seq600:#184f95; --seq650:#104281; --seq700:#0d366b;
+  --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+  --zero:#f0efec;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --page:#0d0d0d; --surface:#1a1a19;
+    --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+    --s1:#3987e5; --s2:#199e70;
+    --zero:#242422;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--page); color:var(--ink);
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding:28px 20px 64px;
+}
+.wrap{max-width:1060px;margin:0 auto}
+header.top{margin-bottom:20px}
+h1{font-size:26px;font-weight:650;margin:0 0 6px;letter-spacing:-.01em}
+.sub{color:var(--ink-2);max-width:72ch;margin:0}
+.sub a{color:inherit}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:3px;gap:2px}
+.seg button{
+  border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;
+  padding:5px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;
+}
+.seg button[aria-pressed="true"]{background:var(--s1);color:#fff;font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--s1);outline-offset:1px}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:20px 22px;margin-bottom:18px;
+}
+.card h2{font-size:16px;font-weight:650;margin:0 0 2px}
+.card .desc{font-size:13px;color:var(--muted);margin:0 0 14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,1fr));gap:18px}
+.grid2 .card{margin-bottom:0}
+.cards-row{margin-bottom:18px}
+/* ---- planner ---- */
+.planner{display:grid;grid-template-columns:270px 1fr;gap:28px}
+@media(max-width:760px){.planner{grid-template-columns:1fr}}
+.ctl{margin-bottom:16px}
+.ctl label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+select{
+  width:100%;font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surface);color:var(--ink);
+}
+input[type=range]{width:100%;accent-color:var(--s1)}
+.range-val{font-size:14px;font-weight:600;margin-top:2px}
+.hero-num{font-size:56px;font-weight:650;line-height:1.05;letter-spacing:-.02em}
+.hero-line{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.risk{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.risk .dot{width:10px;height:10px;border-radius:3px;flex:none}
+.hero-sub{color:var(--ink-2);font-size:13px;margin-top:2px}
+.meter{height:10px;border-radius:5px;background:var(--seq100);overflow:hidden;margin:14px 0 4px;max-width:520px}
+@media (prefers-color-scheme: dark){.meter{background:#20304a}}
+.meter>div{height:100%;border-radius:5px 0 0 5px;transition:width .25s}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:18px}
+.tile{border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tile .tl{font-size:12px;color:var(--muted);margin-bottom:3px}
+.tile .tv{font-size:22px;font-weight:650}
+.tile .td{font-size:12px;color:var(--ink-2);margin-top:2px}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+/* ---- charts ---- */
+svg{display:block;overflow:visible}
+svg text{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--muted)}
+svg .val{fill:var(--ink-2);font-weight:600}
+svg .dl{fill:var(--ink-2);font-weight:600}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--ink-2);margin:2px 0 10px;flex-wrap:wrap;align-items:center}
+.legend .k{display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:11px;height:11px;border-radius:3px}
+.hm-wrap{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:860px){.hm-wrap{grid-template-columns:1fr}}
+.hm-title{font-size:12px;font-weight:600;color:var(--ink-2);margin:0 0 6px}
+.scale{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:10px}
+.scale .bar{height:8px;width:140px;border-radius:4px;background:linear-gradient(to right,var(--zero),var(--seq100) 8%,var(--seq400) 55%,var(--seq700))}
+/* focusable marks */
+.mk{cursor:default}
+.mk:focus{outline:none}
+.mk:focus .focus-ring, .mk:hover .focus-ring{opacity:1}
+/* ---- per-day timeline drill-down ---- */
+.day-row{display:grid;grid-template-columns:196px 1fr;align-items:center;gap:10px;padding:2px 6px;border-radius:6px}
+.day-row.on{background:color-mix(in srgb,var(--s1) 9%,transparent)}
+.day-lab{font-size:12px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.day-row.on .day-lab{color:var(--ink);font-weight:600}
+.day-lab .wd{color:var(--muted);font-weight:400;margin-left:4px}
+.day-lab .wx-ic{margin-left:7px;font-variant-numeric:normal}
+.day-lab .wx-t{margin-left:2px;color:var(--ink-2)}
+.day-track{width:100%;height:22px;display:block}
+.day-seg{cursor:pointer}
+.day-seg:hover{opacity:.82}
+.dh-head{display:grid;grid-template-columns:196px 1fr;gap:10px;padding:0 6px 4px;font-size:11px;color:var(--muted)}
+.dh-head .ticks{display:flex;justify-content:space-between}
+/* ---- event-log controls ---- */
+.log-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0 8px;font-size:12px}
+.log-controls label{display:inline-flex;gap:5px;align-items:center;color:var(--muted)}
+.log-controls select,.log-controls input[type=search]{font:inherit;font-size:12px;padding:4px 8px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--ink)}
+.log-sort{display:inline-flex;gap:4px;align-items:center;color:var(--muted)}
+.log-sort button{border:1px solid var(--border);background:var(--surface);color:var(--ink-2);font:inherit;font-size:12px;padding:3px 9px;border-radius:6px;cursor:pointer}
+.log-sort button[aria-pressed="true"]{background:var(--s1);color:#fff;border-color:transparent;font-weight:600}
+.flabel{font-size:12px;color:var(--muted)}
+#logTbl td .day-track{min-width:200px}
+.log-key{display:inline-flex;gap:14px;align-items:center;font-size:11px;color:var(--muted);margin-left:auto}
+.log-key .k{display:inline-flex;gap:5px;align-items:center}
+.log-key .sw{width:16px;height:9px;border-radius:2px;display:inline-block}
+/* ---- tooltip ---- */
+#tip{
+  position:fixed;z-index:30;pointer-events:none;opacity:0;
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  box-shadow:0 4px 16px rgba(0,0,0,.14);padding:8px 11px;max-width:300px;
+  font-size:12px;color:var(--ink-2);transition:opacity .08s;
+}
+#tip .tv{font-size:15px;font-weight:650;color:var(--ink)}
+/* ---- tables ---- */
+details{margin-top:12px}
+details summary{cursor:pointer;font-size:13px;color:var(--ink-2);user-select:none}
+details summary:hover{color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;border-bottom:1px solid var(--grid);padding:5px 10px 5px 0}
+td{border-bottom:1px solid var(--grid);padding:5px 10px 5px 0;color:var(--ink-2)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td a{color:var(--s1)}
+.tbl-scroll{max-height:420px;overflow:auto}
+.methodology p{font-size:13.5px;color:var(--ink-2);max-width:78ch}
+.methodology li{font-size:13.5px;color:var(--ink-2);margin-bottom:6px;max-width:78ch}
+footer{margin-top:26px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>Will Walden Pond be closed?</h1>
+  <p class="sub">When the parking lots fill, Walden Pond State Reservation closes to <em>all</em> incoming
+  visitors — no walk-ins, no drop-offs — until enough people leave. This page estimates the odds from
+  every closure announcement posted by <a href="https://x.com/waldenpondstate" rel="noopener">@waldenpondstate</a><span id="hdrStats"></span>.</p>
+</header>
+
+<!-- ============ USE CASE 1: planning a visit ============ -->
+<section class="card">
+  <h2>Planning a visit — what are the chances it's closed?</h2>
+  <p class="desc">Pick when you're going. Estimates come from how often the park was actually closed at that moment on comparable days.</p>
+  <div class="planner">
+    <div>
+      <div class="ctl">
+        <label for="mSel">Month</label>
+        <select id="mSel">
+          <option value="5">May</option><option value="6">June</option>
+          <option value="7" selected>July</option><option value="8">August</option>
+          <option value="9">September</option><option value="10">October</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Day</label>
+        <div class="seg" id="dtSeg" role="group" aria-label="Day type">
+          <button data-dt="we" aria-pressed="true">Weekend / holiday</button>
+          <button data-dt="wd" aria-pressed="false">Weekday</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label for="wSel">Expected weather</label>
+        <select id="wSel">
+          <option value="any" selected>Any weather</option>
+          <option value="hot">Hot &amp; dry (85°F+)</option>
+          <option value="warm">Warm &amp; dry (75–85°F)</option>
+          <option value="cool">Cool (&lt;75°F) or rainy</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label for="tSel">Arrival time — <span class="range-val" id="tVal"></span></label>
+        <input type="range" id="tSel" min="360" max="1110" step="30" value="660">
+      </div>
+      <p class="note">Weather = conditions recorded at the pond that day
+      (temperature is the daytime high).</p>
+    </div>
+    <div>
+      <div class="hero-line">
+        <div class="hero-num" id="pMain">–</div>
+        <div class="risk" id="riskChip"></div>
+      </div>
+      <div class="hero-sub" id="pSub"></div>
+      <div class="meter"><div id="meterFill"></div></div>
+      <div class="tiles">
+        <div class="tile"><div class="tl">Closes at some point that day</div><div class="tv" id="tAny">–</div><div class="td" id="tAnyD"></div></div>
+        <div class="tile"><div class="tl">Typical closing time</div><div class="tv" id="tWhen">–</div><div class="td">on days it closes</div></div>
+        <div class="tile"><div class="tl">Wait if you arrive to a closure</div><div class="tv" id="tWait">–</div><div class="td" id="tWaitD"></div></div>
+      </div>
+      <p class="note" id="plannerNote"></p>
+    </div>
+  </div>
+  <div style="margin-top:22px;border-top:1px solid var(--grid);padding-top:16px">
+    <h2 style="font-size:14px">Chance it has already closed, by time of day</h2>
+    <p class="desc">Cumulative: on days like the one selected above, the share of days on which the
+    first closure had already happened by each time. The curve's plateau is the chance of any closure that day.</p>
+    <div id="cumChart" style="max-width:640px"></div>
+    <p class="note" id="cumNote"></p>
+    <details><summary id="cumDaysSummary">Show every comparable day</summary>
+      <p class="note" id="cumDaysLegend" style="margin-top:10px"></p>
+      <div class="tbl-scroll" id="cumDays"></div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ USE CASE 2: it's closed right now ============ -->
+<section class="card">
+  <h2>It's closed right now — when will it reopen?</h2>
+  <p class="desc">Based on the gap between each closure announcement and the matching “we have reopened” post.</p>
+  <div class="planner">
+    <div>
+      <div class="ctl">
+        <label for="cSel">Closure was announced at — <span class="range-val" id="cVal"></span></label>
+        <input type="range" id="cSel" min="420" max="1080" step="30" value="780">
+      </div>
+      <p class="note">Rule of thumb: mid-day closures reopen in about two hours as parking turns over.
+      Closures announced after ~4&nbsp;pm usually don't reopen until the next morning
+      (the park opens at 5–7&nbsp;am depending on season).</p>
+    </div>
+    <div>
+      <div class="tiles" style="margin-top:0">
+        <div class="tile"><div class="tl">Typical wait to reopen</div><div class="tv" id="rMed">–</div><div class="td">median, same-day reopenings</div></div>
+        <div class="tile"><div class="tl">Middle 50% of waits</div><div class="tv" id="rIqr">–</div><div class="td">half of closures reopen in this window</div></div>
+        <div class="tile"><div class="tl">Stays closed overnight</div><div class="tv" id="rOver">–</div><div class="td" id="rOverD"></div></div>
+      </div>
+      <p class="note" id="reopenNote"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DRILL-DOWN ============ -->
+<section class="card">
+  <h2>When closures happen — month × time of day</h2>
+  <p class="desc">Share of days the park was closed to incoming visitors at each hour. Darker = closed more often.</p>
+  <div class="hm-wrap">
+    <div><p class="hm-title">Weekends &amp; holidays</p><div id="hmWE"></div></div>
+    <div><p class="hm-title">Weekdays</p><div id="hmWD"></div></div>
+  </div>
+  <div class="scale"><span>0%</span><span class="bar"></span><span id="scaleMax"></span><span style="margin-left:6px">of days closed at that hour</span></div>
+</section>
+
+<div class="grid2 cards-row">
+  <section class="card">
+    <h2>Weather is the trigger — closures vs. daytime high</h2>
+    <p class="desc">Share of days with at least one closure, by that day's high temperature at the pond.</p>
+    <div class="legend" id="wxLegend"></div>
+    <div id="wxChart"></div>
+    <p class="note" id="wxNote"></p>
+    <details><summary>Data table</summary><div id="wxTbl"></div></details>
+  </section>
+  <section class="card">
+    <h2>Chance of a closure by month</h2>
+    <p class="desc">Share of days with at least one capacity closure.</p>
+    <div class="legend" id="moLegend"></div>
+    <div id="moChart"></div>
+    <details><summary>Data table</summary><div id="moTbl"></div></details>
+  </section>
+</div>
+
+<div class="grid2 cards-row">
+  <section class="card">
+    <h2>Closure days per season</h2>
+    <p class="desc">Days with at least one capacity closure, by year. Gray years aren't used in the estimates (2019 is partial; 2020 had COVID parking caps).</p>
+    <div id="yrChart"></div>
+    <details><summary>Data table</summary><div id="yrTbl"></div></details>
+  </section>
+  <section class="card">
+    <h2>How long closures last</h2>
+    <p class="desc">Distribution of same-day closure durations (announcement → reopening post).</p>
+    <div id="histChart"></div>
+    <details><summary>Data table</summary><div id="histTbl"></div></details>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Event log</h2>
+  <p class="desc">Every capacity closure since 2021. The bar shows when the park was closed (7am–7pm, noon marked); hover it for exact times and duration. Filter and sort below; each row links to the closing and reopening posts.</p>
+  <details open>
+    <summary id="logSummary">Capacity closures</summary>
+    <div class="log-controls">
+      <label>Season <select id="logYear"></select></label>
+      <label>Day <select id="logDay">
+        <option value="">All</option><option value="we">Weekend / holiday</option>
+        <option value="wd">Weekday</option></select></label>
+      <label>Weather <select id="logWx">
+        <option value="">Any weather</option>
+        <option value="hot">Hot &amp; dry (85°F+)</option>
+        <option value="warm">Warm &amp; dry (75–85°F)</option>
+        <option value="cool">Cool (&lt;75°F) or rainy</option></select></label>
+      <input type="search" id="logSearch" placeholder="filter text…">
+      <span class="log-sort">Sort
+        <button data-k="date" aria-pressed="true">Date ↓</button>
+        <button data-k="cm" aria-pressed="false">Closing time</button>
+      </span>
+      <span class="flabel" id="logCount"></span>
+      <span class="log-key">
+        <span class="k"><span class="sw" id="keySame"></span>same-day</span>
+        <span class="k"><span class="sw" id="keyOver"></span>next-day</span>
+      </span>
+    </div>
+    <div class="tbl-scroll" id="logTbl"></div>
+  </details>
+  <details>
+    <summary id="otherSummary">Other closures (weather, police activity, COVID)</summary>
+    <div class="tbl-scroll" id="otherTbl"></div>
+  </details>
+</section>
+
+<section class="card methodology">
+  <h2>How these estimates work</h2>
+  <ul>
+    <li><strong>Source.</strong> All 700+ posts from the official @waldenpondstate account, classified into closure / reopening announcements and paired chronologically. If staff didn't tweet a closure, it isn't counted — so rates may be slightly <em>higher</em> than shown.</li>
+    <li><strong>“Chance closed when you arrive”</strong> = on comparable days (same month, weekend vs weekday), the share of days the park was inside a closed window at that time. A closed window runs from the announced closure time to the matched reopening post; when no reopening post exists it's assumed to last 2h 10m (the historical median), or the rest of the day for closures after 4 pm.</li>
+    <li><strong>Estimates use the 2021–2026 seasons.</strong> 2019 data starts in late August, and 2020's COVID rules capped parking at ~50%, producing 51 closure days — about triple a normal season. Both are excluded from every probability on this page; they still appear in the per-season chart, the timeline, and the event log for context.</li>
+    <li><strong>Holidays count as weekends</strong> (Memorial Day, Juneteenth, July 4, Labor Day, Indigenous Peoples' Day): they fill like Saturdays.</li>
+    <li><strong>What actually drives closures:</strong> heat. Weekend days over 85°F closed three times out of four; below 75°F closures are rare even on weekends. The lot (~350 spaces) typically fills between 9 and 11 am on busy days; it reopens as visitors leave, usually within ~2 hours.</li>
+    <li><strong>Weather</strong> is hourly reanalysis data for the pond's coordinates from the free <a href="https://open-meteo.com/" rel="noopener">Open-Meteo</a> archive (checkpoints at 9 am / noon / 3 pm; "daytime high" = max 8 am–5 pm; "dry" = under 0.1&Prime; of rain 8 am–6 pm). It's the weather that <em>happened</em> — when planning ahead, pair this page with a forecast.</li>
+    <li><strong>Small samples.</strong> Some month × hour cells rest on a handful of days; every figure shows its <em>n</em>. Treat these as base rates, not forecasts — weather on the day dominates. For live status check the <a href="https://www.mass.gov/locations/walden-pond-state-reservation" rel="noopener">DCR alerts page</a> or the feed itself.</li>
+    <li>All times US Eastern (EDT). Closure times use the time stated in the post when present, else the posting time; reopening moments use the reopening post's timestamp.</li>
+  </ul>
+</section>
+
+<footer><span id="footDate"></span>Built by <a href="https://nkorobkov.com" rel="noopener">Nikita</a> · Not affiliated with Mass DCR.</footer>
+</div>
+
+<div id="tip" role="status"></div>
+
+<script>
+const DATA = __DATA__;
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+const MONTHS = {5:"May",6:"June",7:"July",8:"August",9:"September",10:"October"};
+const MON_S  = {5:"May",6:"Jun",7:"Jul",8:"Aug",9:"Sep",10:"Oct"};
+const DAY_END = 19*60, IMPUTE = 130;
+const fmtT = m => { let h=Math.floor(m/60), mm=m%60, ap=h>=12?"pm":"am"; h=h%12||12; return h+(mm? ":"+String(mm).padStart(2,"0"):"")+" "+ap; };
+const fmtDur = m => { if(m<57.5) return Math.round(m/5)*5+" min"; let h=Math.floor(m/60), r=Math.round((m%60)/5)*5; if(r===60){h++;r=0;} return h+" h"+(r?" "+r+"m":""); };
+const fmtPct = p => (p*100<1&&p>0?"<1":Math.round(p*100))+"%";
+const median = a => { if(!a.length) return null; const s=[...a].sort((x,y)=>x-y), i=s.length/2; return s.length%2? s[i|0] : (s[i-1]+s[i])/2; };
+const quantile = (a,q)=>{ if(!a.length)return null; const s=[...a].sort((x,y)=>x-y); const p=(s.length-1)*q, b=Math.floor(p); return s[b]+(s[b+1]!==undefined?(s[b+1]-s[b])*(p-b):0); };
+function svg(tag,attrs,parent){ const e=document.createElementNS("http://www.w3.org/2000/svg",tag); for(const k in attrs)e.setAttribute(k,attrs[k]); if(parent)parent.appendChild(e); return e; }
+function el(tag,attrs,parent,text){ const e=document.createElement(tag); for(const k in attrs||{})e.setAttribute(k,attrs[k]); if(text!==undefined)e.textContent=text; if(parent)parent.appendChild(e); return e; }
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* sequential ramp for heatmap */
+const SEQ=[["--seq100",.08],["--seq150",.14],["--seq200",.20],["--seq250",.27],["--seq300",.34],["--seq350",.42],["--seq400",.50],["--seq450",.58],["--seq500",.66],["--seq550",.75],["--seq600",.84],["--seq650",.92],["--seq700",1]];
+function seqColor(frac){ if(frac<=0) return cssv("--zero"); for(const [v,t] of SEQ) if(frac<=t) return cssv(v); return cssv("--seq700"); }
+
+/* US/MA holidays that behave like weekends */
+function nthDow(y,m,dow,n){ const d=new Date(y,m-1,1); let c=0; while(true){ if(d.getDay()===dow){c++; if(c===n)return d.getDate();} d.setDate(d.getDate()+1);} }
+function lastDow(y,m,dow){ const d=new Date(y,m,0); while(d.getDay()!==dow) d.setDate(d.getDate()-1); return d.getDate(); }
+function holidays(y){
+  return new Set([
+    `${y}-05-${String(lastDow(y,5,1)).padStart(2,"0")}`,      // Memorial Day
+    `${y}-06-19`,                                             // Juneteenth
+    `${y}-07-04`,                                             // Independence Day
+    `${y}-09-${String(nthDow(y,9,1,1)).padStart(2,"0")}`,     // Labor Day
+    `${y}-10-${String(nthDow(y,10,1,2)).padStart(2,"0")}`,    // Indigenous Peoples' Day
+  ]);
+}
+const HOL = {}; for(const y in DATA.coverage) HOL[y]=holidays(+y);
+
+/* weather: {date:[tmaxDay, precipDay, cloudDay, t9, t12, t15]} */
+const WX = DATA.weather || {};
+const WX_LABEL = {hot:"hot & dry (85°F+)", warm:"warm & dry (75–85°F)", cool:"cool or rainy"};
+function wq(ds){
+  const w=WX[ds]; if(!w) return null;
+  const [tm,p]=w;
+  if(p<0.1 && tm>=85) return "hot";
+  if(p<0.1 && tm>=75) return "warm";
+  return "cool";
+}
+function wxLine(ds){
+  const w=WX[ds]; if(!w) return null;
+  return `high ${Math.round(w[0])}°F · ${w[1]>=0.05? w[1].toFixed(1)+'" rain':"dry"}${w[2]!=null? " · "+w[2]+"% cloud":""}`;
+}
+function wxIcon(ds){          // sun / partly / cloud / rain, from precip + cloud cover
+  const w=WX[ds]; if(!w) return "";
+  if(w[1]>=0.05) return "🌧️";
+  if(w[2]!=null && w[2]>=65) return "☁️";
+  if(w[2]!=null && w[2]>=30) return "⛅";
+  return "☀️";
+}
+function dayTypeOf(dateStr){
+  const d=new Date(dateStr+"T12:00:00"), dw=d.getDay();
+  if(dw===0||dw===6) return "we";
+  return (HOL[dateStr.slice(0,4)]||new Set()).has(dateStr) ? "we" : "wd";
+}
+
+/* closed interval for one event: [start,end] minutes, end===null => overnight */
+function interval(e){
+  const s=e.cm;
+  if(e.rm!=null && !e.rn && e.rm>s) return [s,Math.min(e.rm,DAY_END),false];
+  if(e.rn) return [s,DAY_END,true];
+  if(e.est){ const [h,m]=e.est.split(":").map(Number); const em=h*60+m; if(em>s) return [s,Math.min(em,DAY_END),false]; }
+  if(s>=16*60) return [s,DAY_END,true];
+  return [s,Math.min(s+IMPUTE,DAY_END),false];
+}
+function mergeIv(ivs){
+  const s=[...ivs].sort((a,b)=>a[0]-b[0]); const out=[];
+  for(const iv of s){ const last=out[out.length-1];
+    if(last && iv[0]<=last[1]+10){ last[1]=Math.max(last[1],iv[1]); last[2]=last[2]||iv[2]; }
+    else out.push([...iv]); }
+  return out;
+}
+
+/* ================= state ================= */
+/* All estimates use the 2021+ seasons: 2019 is partial and 2020's COVID
+   parking caps tripled closures. Earlier years still appear (grayed) in the
+   per-season chart, the timeline, and the event log for context. */
+const Y0="2021";
+let dt="we";
+const state={ month:7, arr:660, closedAt:780, wx:"any" };
+let cumTimeUpdate=null;   // set by renderCum; moves the selected-time line live
+
+/* days in coverage for selected years -> {date, m, dt, ivs(merged), any} */
+function buildDays(){
+  const byDay={}, evDay={};
+  for(const e of DATA.events){
+    if(e.d.slice(0,4)<Y0) continue;
+    (byDay[e.d]=byDay[e.d]||[]).push(interval(e));
+    (evDay[e.d]=evDay[e.d]||[]).push(e);
+  }
+  const days=[];
+  for(const y in DATA.coverage){
+    if(y<Y0) continue;
+    const [a,b]=DATA.coverage[y];
+    for(let d=new Date(a+"T12:00:00"); ; d.setDate(d.getDate()+1)){
+      const ds=d.toISOString().slice(0,10);
+      if(ds>b) break;
+      days.push({ds, m:d.getMonth()+1, dt:dayTypeOf(ds), q:wq(ds),
+                 ivs: byDay[ds]?mergeIv(byDay[ds]):null, evs: evDay[ds]||null});
+    }
+  }
+  return days;
+}
+function filteredEvents(){
+  return DATA.events.filter(e=>e.d.slice(0,4)>=Y0);
+}
+
+/* ================= tooltip ================= */
+const tip=$("tip");
+function showTip(evt,lines){ // lines: [[value,label],...] first line big
+  tip.textContent="";
+  lines.forEach((l,i)=>{ const d=el("div",{},tip); if(i===0){el("span",{class:"tv"},d,l[0]); if(l[1])d.append(" "+l[1]);} else d.textContent=l.join(" "); });
+  tip.style.opacity=1; moveTip(evt);
+}
+function moveTip(evt){
+  const r=tip.getBoundingClientRect();
+  let x=evt.clientX+14, y=evt.clientY+14;
+  if(x+r.width>innerWidth-8) x=evt.clientX-r.width-10;
+  if(y+r.height>innerHeight-8) y=evt.clientY-r.height-10;
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function hideTip(){ tip.style.opacity=0; }
+function hover(target,get){ // get(): lines
+  target.addEventListener("pointerenter",e=>showTip(e,get()));
+  target.addEventListener("pointermove",moveTip);
+  target.addEventListener("pointerleave",hideTip);
+  target.addEventListener("focus",()=>{const r=target.getBoundingClientRect(); showTip({clientX:r.left+r.width/2,clientY:r.top},get());});
+  target.addEventListener("blur",hideTip);
+}
+
+/* ================= render: planner ================= */
+function riskOf(p){
+  if(p<.08)  return ["Low","--good"];
+  if(p<.25)  return ["Moderate","--warning"];
+  if(p<.5)   return ["High","--serious"];
+  return ["Very high","--critical"];
+}
+function plannerDayLabel(){
+  return `${MONTHS[state.month]} ${dt==="we"?"weekend/holiday":"weekday"}`+
+         (state.wx==="any"?"":`, ${WX_LABEL[state.wx]}`);
+}
+function plannerMatch(days){
+  return days.filter(d=>d.m===state.month && d.dt===dt && (state.wx==="any" || d.q===state.wx));
+}
+function renderPlanner(days){
+  const t=state.arr, m=state.month;
+  $("tVal").textContent=fmtT(t);
+  const match=plannerMatch(days);
+  const n=match.length;
+  const closedNow=match.filter(d=>d.ivs && d.ivs.some(iv=>t>=iv[0]&&t<iv[1]));
+  const anyDays=match.filter(d=>d.ivs);
+  const p=n? closedNow.length/n : 0;
+  $("pMain").textContent=n? fmtPct(p) : "—";
+  const [lbl,cvar]=riskOf(p);
+  const chip=$("riskChip"); chip.textContent="";
+  el("span",{class:"dot",style:`background:${cssv(cvar)}`},chip);
+  chip.append(lbl+" risk");
+  $("pSub").textContent=`chance the park is closed to incoming visitors at ${fmtT(t)} on a ${plannerDayLabel()} — closed on ${closedNow.length} of ${n} comparable days since 2021`;
+  const f=$("meterFill"); f.style.width=Math.max(p*100,p>0?2:0)+"%"; f.style.background=cssv(cvar);
+  $("tAny").textContent=n? fmtPct(anyDays.length/n):"—";
+  $("tAnyD").textContent=`${anyDays.length} of ${n} days had a closure`;
+  const firstCloses=anyDays.map(d=>d.ivs[0][0]);
+  $("tWhen").textContent=firstCloses.length? fmtT(Math.round(median(firstCloses)/15)*15) : "—";
+  // wait if arriving into a closure
+  let pool=match, widened=false;
+  let cover=pool.flatMap(d=>(d.ivs||[]).filter(iv=>t>=iv[0]&&t<iv[1]));
+  if(cover.length<6){ pool=days.filter(d=>d.dt===dt); cover=pool.flatMap(d=>(d.ivs||[]).filter(iv=>t>=iv[0]&&t<iv[1])); widened=true; }
+  const sameDay=cover.filter(iv=>!iv[2]).map(iv=>iv[1]-t);
+  const overn=cover.filter(iv=>iv[2]).length;
+  if(cover.length){
+    if(sameDay.length && overn/cover.length<.5){
+      $("tWait").textContent="~"+fmtDur(median(sameDay));
+      $("tWaitD").textContent=(overn?`${Math.round(overn/cover.length*100)}% stay closed overnight · `:"")+(widened?`all months, ${cover.length} cases`:`${cover.length} past cases`);
+    } else {
+      $("tWait").textContent="overnight";
+      $("tWaitD").textContent=`${Math.round(overn/cover.length*100)}% of closures at this hour don't reopen same day`;
+    }
+  } else { $("tWait").textContent="—"; $("tWaitD").textContent="no past cases at this time"; }
+  const small = n&&n<12 ? `Only ${n} comparable days match — treat this as a rough estimate. ` : "";
+  $("plannerNote").textContent = small + (p===0&&n?
+    "No closure has covered this time on comparable days since 2021 — but a hot holiday weekend can always be the first.":
+    "Base rates from past seasons"+(state.wx==="any"?"; on a hot sunny day, assume the higher end":"")+". Arriving before 9 am beats the fill-up on almost every recorded day.");
+}
+
+/* ================= render: cumulative closed-by curve ================= */
+function renderCum(days){
+  const match=plannerMatch(days), n=match.length;
+  const firsts=match.filter(d=>d.ivs).map(d=>d.ivs[0][0]).sort((a,b)=>a-b);
+  const box=$("cumChart"); box.textContent="";
+  const W=640,H=210,PL=40,PB=24,PT=12,PR=52;
+  const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"},box);
+  const T0=7*60,T1=19*60;
+  const X=t=>PL+(t-T0)/(T1-T0)*(W-PL-PR);
+  const pAt=t=>n? firsts.filter(f=>f<=t).length/n : 0;
+  const plateau=n? firsts.length/n : 0;
+  const ymax=Math.max(Math.ceil(plateau*10)/10,.2);
+  const Y=p=>PT+(H-PT-PB)*(1-p/ymax);
+  for(let g=0;g<=ymax*100+1e-6;g+=ymax>=.6?20:10){
+    svg("line",{x1:PL,x2:W-PR,y1:Y(g/100),y2:Y(g/100),stroke:cssv("--grid")},s);
+    svg("text",{x:PL-6,y:Y(g/100)+4,"text-anchor":"end"},s).textContent=Math.round(g)+"%";
+  }
+  for(let h=7;h<=19;h+=2) svg("text",{x:X(h*60),y:H-6,"text-anchor":"middle"},s).textContent=fmtT(h*60).replace(" ","");
+  // step path at 15-min resolution
+  let dPath="",aPath=`M ${X(T0)} ${Y(0)}`;
+  for(let t=T0;t<=T1;t+=15){
+    const x=X(t),y=Y(pAt(t));
+    dPath+=(dPath?" L":"M")+` ${x} ${y}`; aPath+=` L ${x} ${y}`;
+  }
+  aPath+=` L ${X(T1)} ${Y(0)} Z`;
+  svg("path",{d:aPath,fill:cssv("--s1"),opacity:.1},s);
+  svg("path",{d:dPath,fill:"none",stroke:cssv("--s1"),"stroke-width":2,"stroke-linejoin":"round"},s);
+  const endY=Y(plateau);
+  svg("circle",{cx:X(T1),cy:endY,r:4,fill:cssv("--s1"),stroke:cssv("--surface"),"stroke-width":2},s);
+  svg("text",{x:X(T1)+8,y:endY+4,class:"dl"},s).textContent=fmtPct(plateau);
+  // crosshair + tooltip
+  const cross=svg("line",{y1:PT,y2:H-PB,stroke:cssv("--axis"),"stroke-width":1,opacity:0},s);
+  const hit=svg("rect",{x:PL,y:PT,width:W-PL-PR,height:H-PT-PB,fill:"transparent"},s);
+  hit.addEventListener("pointermove",e=>{
+    const r=hit.getBoundingClientRect();
+    const t=Math.round((T0+(e.clientX-r.left)/r.width*(T1-T0))/15)*15;
+    const tc=Math.max(T0,Math.min(T1,t));
+    cross.setAttribute("x1",X(tc)); cross.setAttribute("x2",X(tc)); cross.setAttribute("opacity",1);
+    const c=firsts.filter(f=>f<=tc).length;
+    showTip(e,[[fmtPct(pAt(tc)),"chance already closed"],["by "+fmtT(tc)],[`${c} of ${n} comparable days`]]);
+  });
+  hit.addEventListener("pointerleave",()=>{cross.setAttribute("opacity",0); hideTip();});
+  // note
+  if(firsts.length>=4){
+    const q=p=>fmtT(Math.round(quantile(firsts,p)/15)*15);
+    $("cumNote").textContent=`On the ${firsts.length} of ${n} comparable days that closed: a quarter had closed by ${q(.25)}, half by ${q(.5)}, three-quarters by ${q(.75)}.`;
+  } else {
+    $("cumNote").textContent=n? `Only ${firsts.length} of ${n} comparable days closed — too few for a reliable curve.`:"No comparable days on record since 2021.";
+  }
+  // selected-time line on the main curve (moved live by the arrival slider)
+  const selMain=svg("line",{y1:PT,y2:H-PB,stroke:cssv("--ink"),"stroke-width":1.5,opacity:.4,"vector-effect":"non-scaling-stroke"},s);
+
+  // --- per-day drill-down: one 7am–7pm track per comparable day ---
+  $("cumDaysSummary").textContent=n? `Show all ${n} comparable days` : "Show comparable days";
+  const host=$("cumDays"); host.textContent="";
+  if(!n){ $("cumDaysLegend").textContent=""; el("p",{class:"note"},host,"No comparable days on record since 2021."); cumTimeUpdate=()=>{}; return; }
+  const DT0=7*60, DT1=19*60;
+  const dx=t=>(Math.max(DT0,Math.min(DT1,t))-DT0)/(DT1-DT0)*1000;
+  const head=el("div",{class:"dh-head"},host);
+  el("div",{},head,"day (earliest closure first)");
+  const ticks=el("div",{class:"ticks"},head);
+  for(let h=7;h<=19;h+=3) el("span",{},ticks,fmtT(h*60).replace(" ",""));
+  // earliest closure first; no-closure days last, then by date
+  const sorted=[...match].sort((a,b)=>{
+    const fa=a.ivs?a.ivs[0][0]:1e9, fb=b.ivs?b.ivs[0][0]:1e9;
+    return fa-fb || a.ds.localeCompare(b.ds);
+  });
+  const rowRefs=[];
+  for(const d of sorted){
+    const row=el("div",{class:"day-row"},host);
+    const dd=new Date(d.ds+"T12:00:00");
+    const lab=el("div",{class:"day-lab"},row,d.ds);
+    el("span",{class:"wd"},lab,dd.toLocaleDateString("en-US",{weekday:"short"}));
+    const w=WX[d.ds];
+    if(w){
+      el("span",{class:"wx-ic",title:wxLine(d.ds)},lab,wxIcon(d.ds));
+      el("span",{class:"wx-t"},lab,Math.round(w[0])+"°");
+    }
+    const tk=svg("svg",{class:"day-track",viewBox:"0 0 1000 22",preserveAspectRatio:"none"},row);
+    svg("line",{x1:0,x2:1000,y1:11,y2:11,stroke:cssv("--grid"),"stroke-width":1,"vector-effect":"non-scaling-stroke"},tk);
+    const segs=[];
+    for(const e of (d.evs||[])){
+      const iv=interval(e);
+      const x0=dx(iv[0]), x1=Math.max(dx(iv[1]),x0+1.5);
+      const a=svg("a",{href:e.u,target:"_blank",rel:"noopener"},tk);
+      const rect=svg("rect",{x:x0,y:5,width:x1-x0,height:12,rx:2,fill:cssv("--s1"),class:"day-seg"},a);
+      segs.push({rect,start:iv[0]});
+      hover(rect,()=>{
+        const lines=[["closed "+fmtT(iv[0])+(iv[2]?" → next day":" – "+fmtT(iv[1]))]];
+        if(!iv[2]) lines.push([fmtDur(iv[1]-iv[0])+" closed"]);
+        if(e.rm!=null&&!e.rn) lines.push(["reopened "+fmtT(e.rm)]);
+        else if(e.rn) lines.push(["reopened the next day"]);
+        else if(e.est) lines.push(["stated reopen "+fmtT(+e.est.slice(0,2)*60 + +e.est.slice(3))]);
+        lines.push([dd.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"})]);
+        const wl=wxLine(d.ds); if(wl) lines.push([wl]);
+        lines.push(["click bar → original post ↗"]);
+        return lines;
+      });
+    }
+    const selLine=svg("line",{y1:1,y2:21,stroke:cssv("--ink"),"stroke-width":1.5,opacity:.55,"vector-effect":"non-scaling-stroke"},tk);
+    rowRefs.push({row,segs,selLine,first:d.ivs?d.ivs[0][0]:null});
+  }
+  cumTimeUpdate=function(t){
+    const mx=Math.max(T0,Math.min(T1,t));
+    selMain.setAttribute("x1",X(mx)); selMain.setAttribute("x2",X(mx));
+    const xx=dx(t); let cnt=0;
+    for(const r of rowRefs){
+      r.selLine.setAttribute("x1",xx); r.selLine.setAttribute("x2",xx);
+      const on=r.first!=null && r.first<=t;
+      r.row.classList.toggle("on",on);
+      if(on) cnt++;
+      for(const sg of r.segs) sg.rect.setAttribute("opacity", sg.start<=t?1:0.28);
+    }
+    $("cumDaysLegend").textContent=`Vertical line = your ${fmtT(t)} arrival. Solid bars are closures already in effect by then — ${cnt} of ${n} days (${fmtPct(cnt/n)}), the curve's height at ${fmtT(t)}; faded bars closed later that day.`;
+  };
+  cumTimeUpdate(state.arr);
+}
+
+/* ================= chart: weather vs closures ================= */
+const WX_BANDS=[[0,70,"<70°"],[70,75,"70–75°"],[75,80,"75–80°"],[80,85,"80–85°"],[85,90,"85–90°"],[90,999,"90°+"]];
+function renderWx(days){
+  const agg=WX_BANDS.map(()=>({we:{n:0,c:0},wd:{n:0,c:0}}));
+  let dry={n:0,c:0}, wet={n:0,c:0};
+  for(const d of days){
+    const w=WX[d.ds]; if(!w) continue;
+    const bi=WX_BANDS.findIndex(([lo,hi])=>w[0]>=lo&&w[0]<hi); if(bi<0) continue;
+    const a=agg[bi][d.dt]; a.n++; if(d.ivs)a.c++;
+    if(w[0]>=78 && d.dt==="we"){ const b=w[1]>=0.1?wet:dry; b.n++; if(d.ivs)b.c++; }
+  }
+  const lg=$("wxLegend"); lg.textContent="";
+  for(const [c,l] of [["--s1","Weekend / holiday"],["--s2","Weekday"]]){
+    const k=el("span",{class:"k"},lg); el("span",{class:"sw",style:`background:${cssv(c)}`},k); k.append(l);
+  }
+  const box=$("wxChart"); box.textContent="";
+  const W=460,H=200,PL=40,PB=22,PT=14,bw=16;
+  const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"},box);
+  const pmax=Math.max(...agg.flatMap(a=>["we","wd"].map(k=>a[k].n?a[k].c/a[k].n:0)),.4);
+  const ymax=Math.ceil(pmax*10)/10;
+  const y=p=>PT+(H-PT-PB)*(1-p/ymax);
+  for(let g=0;g<=ymax*100+1e-6;g+=20){ const yy=y(g/100);
+    svg("line",{x1:PL,x2:W-4,y1:yy,y2:yy,stroke:cssv("--grid")},s);
+    svg("text",{x:PL-6,y:yy+4,"text-anchor":"end"},s).textContent=Math.round(g)+"%";
+  }
+  const slot=(W-PL-10)/WX_BANDS.length;
+  let best={p:0};
+  WX_BANDS.forEach(([lo,hi,label],i)=>{
+    const x0=PL+i*slot+slot/2;
+    svg("text",{x:x0,y:H-6,"text-anchor":"middle"},s).textContent=label;
+    [["we",-1,"--s1"],["wd",1,"--s2"]].forEach(([k,side,cv])=>{
+      const a=agg[i][k], p=a.n?a.c/a.n:0;
+      const xx=x0+(side<0? -bw-1 : 1);
+      const g=svg("g",{class:"mk",tabindex:"0"},s);
+      svg("rect",{x:xx,y:y(p),width:bw,height:Math.max(y(0)-y(p),0),rx:p>0?3:0,fill:cssv(cv)},g);
+      svg("rect",{x:xx-3,y:PT,width:bw+6,height:y(0)-PT,fill:"transparent",class:"focus-ring"},g);
+      hover(g,()=>[[fmtPct(p),"of days"],[`daytime high ${label.replace("°","°F")}, ${k==="we"?"weekends/holidays":"weekdays"}`],[`${a.c} of ${a.n} days had a closure`]]);
+      if(p>best.p) best={p,x:xx+bw/2,y:y(p)-5};
+    });
+  });
+  if(best.p) svg("text",{x:best.x,y:best.y,"text-anchor":"middle",class:"dl"},s).textContent=Math.round(best.p*100)+"%";
+  $("wxNote").textContent = dry.n&&wet.n ?
+    `Heat matters far more than rain: warm (78°F+) weekend days closed at similar rates whether dry (${Math.round(dry.c/dry.n*100)}% of ${dry.n}) or rainy (${Math.round(wet.c/wet.n*100)}% of ${wet.n}).` : "";
+  const tbl=$("wxTbl"); tbl.textContent="";
+  const t=el("table",{},tbl); const hr=el("tr",{},el("thead",{},t));
+  ["Daytime high","Weekend closures","Weekend n","Weekday closures","Weekday n"].forEach((h,i)=>el("th",{class:i?"num":""},hr,h));
+  const tb=el("tbody",{},t);
+  WX_BANDS.forEach(([lo,hi,label],i)=>{ const r=el("tr",{},tb);
+    el("td",{},r,label); el("td",{class:"num"},r,agg[i].we.c); el("td",{class:"num"},r,agg[i].we.n);
+    el("td",{class:"num"},r,agg[i].wd.c); el("td",{class:"num"},r,agg[i].wd.n);
+  });
+}
+
+/* ================= render: closed-now ================= */
+function renderReopen(){
+  const ch=state.closedAt;
+  $("cVal").textContent=fmtT(ch);
+  // Pool ALL closures near this time (interval-based overnight), not just those
+  // with a matched reopening — otherwise late-afternoon closures that reopen
+  // next morning without a reopening tweet (g=null) vanish and "overnight" is
+  // wildly understated. Median wait uses only same-day closures with a known gap.
+  const all=filteredEvents();
+  let win=45, pool=all.filter(e=>Math.abs(e.cm-ch)<=win);
+  if(pool.length<10){ win=90; pool=all.filter(e=>Math.abs(e.cm-ch)<=win); }
+  const overn=pool.filter(e=>interval(e)[2]).length;
+  const sameDay=pool.filter(e=>!interval(e)[2] && e.g!=null).map(e=>e.g*60);
+  if(pool.length){
+    $("rMed").textContent=sameDay.length? "~"+fmtDur(median(sameDay)) : "next morning";
+    $("rIqr").textContent=sameDay.length>3? fmtDur(quantile(sameDay,.25))+" – "+fmtDur(quantile(sameDay,.75)) : "—";
+    $("rOver").textContent=Math.round(overn/pool.length*100)+"%";
+    $("rOverD").textContent=`${overn} of ${pool.length} closures announced ${fmtT(ch-win)}–${fmtT(ch+win)}`;
+    $("reopenNote").textContent=`Based on ${pool.length} closures announced within ${win===45?"±45 min":"±1½ h"} of ${fmtT(ch)} since 2021. About 1 in 5 closure posts states a planned reopening time — when it does, trust the post.`;
+  } else {
+    $("rMed").textContent=$("rIqr").textContent=$("rOver").textContent="—";
+    $("rOverD").textContent=""; $("reopenNote").textContent="No closures near this time on record since 2021.";
+  }
+}
+
+/* ================= chart: heatmap ================= */
+const HOURS=[...Array(13).keys()].map(i=>i+6); // 6..18
+function renderHeatmap(days){
+  const stats={we:{},wd:{}};
+  for(const k of ["we","wd"]) for(const m of [5,6,7,8,9,10]) stats[k][m]={n:0,h:Object.fromEntries(HOURS.map(h=>[h,0]))};
+  for(const d of days){
+    const s=stats[d.dt][d.m]; if(!s) continue; s.n++;
+    if(d.ivs) for(const h of HOURS){ const t=h*60+30; if(d.ivs.some(iv=>t>=iv[0]&&t<iv[1])) s.h[h]++; }
+  }
+  let pmax=0;
+  for(const k of ["we","wd"]) for(const m of [5,6,7,8,9,10]){ const s=stats[k][m]; if(s.n) for(const h of HOURS) pmax=Math.max(pmax,s.h[h]/s.n); }
+  pmax=Math.max(pmax,.2);
+  $("scaleMax").textContent=Math.round(pmax*100)+"%";
+  for(const [k,id] of [["we","hmWE"],["wd","hmWD"]]){
+    const box=$(id); box.textContent="";
+    const CW=30,CH=26,GX=34,GY=4,W=GX+13*CW,H=6*CH+22;
+    const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%",role:"img","aria-label":"Closure probability heatmap"},box);
+    [5,6,7,8,9,10].forEach((m,ri)=>{
+      svg("text",{x:GX-8,y:GY+ri*CH+CH/2+4,"text-anchor":"end"},s).textContent=MON_S[m];
+      HOURS.forEach((h,ci)=>{
+        const st=stats[k][m], p=st.n? st.h[h]/st.n : 0;
+        const g=svg("g",{class:"mk",tabindex:"0"},s);
+        svg("rect",{x:GX+ci*CW,y:GY+ri*CH,width:CW-2,height:CH-2,rx:3,fill:seqColor(p/pmax)},g);
+        const ring=svg("rect",{x:GX+ci*CW-1,y:GY+ri*CH-1,width:CW,height:CH,rx:4,fill:"none",stroke:cssv("--ink"),"stroke-width":1.2,opacity:0,class:"focus-ring"},g);
+        hover(g,()=>[[fmtPct(p),"of days closed"],[`${MONTHS[m]} ${k==="we"?"weekends":"weekdays"}, ${fmtT(h*60)}–${fmtT(h*60+60)}`],[`${st.h[h]} of ${st.n} days`]]);
+      });
+    });
+    HOURS.forEach((h,ci)=>{ if(h%3===0) svg("text",{x:GX+ci*CW+(CW-2)/2,y:H-6,"text-anchor":"middle"},s).textContent=fmtT(h*60).replace(" ",""); });
+  }
+}
+
+/* ================= chart: month grouped bars ================= */
+function renderMonth(days){
+  const agg={};
+  for(const m of [5,6,7,8,9,10]) agg[m]={we:{n:0,c:0},wd:{n:0,c:0}};
+  for(const d of days){ const a=agg[d.m]&&agg[d.m][d.dt]; if(!a) continue; a.n++; if(d.ivs)a.c++; }
+  const lg=$("moLegend"); lg.textContent="";
+  for(const [c,l] of [["--s1","Weekend / holiday"],["--s2","Weekday"]]){
+    const k=el("span",{class:"k"},lg); el("span",{class:"sw",style:`background:${cssv(c)}`},k); k.append(l);
+  }
+  const box=$("moChart"); box.textContent="";
+  const W=460,H=190,PL=36,PB=22,PT=14,bw=16;
+  const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"},box);
+  const pmax=Math.max(...[5,6,7,8,9,10].flatMap(m=>["we","wd"].map(k=>agg[m][k].n?agg[m][k].c/agg[m][k].n:0)),.4);
+  const ymax=Math.ceil(pmax*10)/10;
+  const y=p=>PT+(H-PT-PB)*(1-p/ymax);
+  for(let g=0;g<=ymax*10;g+=2){ const p=g/10, yy=y(p);
+    svg("line",{x1:PL,x2:W-4,y1:yy,y2:yy,stroke:cssv("--grid"),"stroke-width":1},s);
+    svg("text",{x:PL-6,y:yy+4,"text-anchor":"end"},s).textContent=g*10+"%";
+  }
+  const slot=(W-PL-10)/6;
+  let best={p:0};
+  [5,6,7,8,9,10].forEach((m,i)=>{
+    const x0=PL+i*slot+slot/2;
+    svg("text",{x:x0,y:H-6,"text-anchor":"middle"},s).textContent=MON_S[m];
+    [["we",-1,"--s1"],["wd",1,"--s2"]].forEach(([k,side,cv])=>{
+      const a=agg[m][k], p=a.n?a.c/a.n:0;
+      const x=x0+side*(bw/2+1)-bw/2+ (side<0? 0:0);
+      const xx=x0 + (side<0? -bw-1 : 1);
+      const g=svg("g",{class:"mk",tabindex:"0"},s);
+      svg("rect",{x:xx,y:y(p),width:bw,height:Math.max(y(0)-y(p),0),rx:p>0?3:0,fill:cssv(cv)},g);
+      svg("rect",{x:xx-3,y:PT,width:bw+6,height:y(0)-PT,fill:"transparent",class:"focus-ring"},g);
+      hover(g,()=>[[fmtPct(p),"of days"],[`${MONTHS[m]} ${k==="we"?"weekends/holidays":"weekdays"}`],[`${a.c} of ${a.n} days had a closure`]]);
+      if(p>best.p) best={p,x:xx+bw/2,y:y(p)-5};
+    });
+  });
+  if(best.p) svg("text",{x:best.x,y:best.y,"text-anchor":"middle",class:"dl"},s).textContent=Math.round(best.p*100)+"%";
+  const tbl=$("moTbl"); tbl.textContent="";
+  const t=el("table",{},tbl); const hr=el("tr",{},el("thead",{},t));
+  ["Month","Weekend days w/ closure","Weekend n","Weekday days w/ closure","Weekday n"].forEach((h,i)=>el("th",{class:i?"num":""},hr,h));
+  const tb=el("tbody",{},t);
+  for(const m of [5,6,7,8,9,10]){ const r=el("tr",{},tb);
+    el("td",{},r,MONTHS[m]);
+    el("td",{class:"num"},r,agg[m].we.c); el("td",{class:"num"},r,agg[m].we.n);
+    el("td",{class:"num"},r,agg[m].wd.c); el("td",{class:"num"},r,agg[m].wd.n);
+  }
+}
+
+/* ================= chart: years ================= */
+function renderYears(){
+  const byY={};
+  for(const e of DATA.events) (byY[e.d.slice(0,4)]=byY[e.d.slice(0,4)]||new Set()).add(e.d);
+  const years=Object.keys(DATA.coverage).sort();
+  const box=$("yrChart"); box.textContent="";
+  const W=460,H=190,PL=30,PB=22,PT=18;
+  const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"},box);
+  const vmax=Math.max(...years.map(y=>byY[y]?byY[y].size:0));
+  const ymax=Math.ceil(vmax/10)*10;
+  const y=v=>PT+(H-PT-PB)*(1-v/ymax);
+  for(let g=0;g<=ymax;g+=10){ svg("line",{x1:PL,x2:W-4,y1:y(g),y2:y(g),stroke:cssv("--grid")},s);
+    svg("text",{x:PL-6,y:y(g)+4,"text-anchor":"end"},s).textContent=g; }
+  const slot=(W-PL-10)/years.length, bw=Math.min(24,slot*.5);
+  years.forEach((yr,i)=>{
+    const v=byY[yr]?byY[yr].size:0, x=PL+i*slot+slot/2;
+    const inSel=yr>=Y0;
+    const g=svg("g",{class:"mk",tabindex:"0"},s);
+    svg("rect",{x:x-bw/2,y:y(v),width:bw,height:y(0)-y(v),rx:3,fill:inSel?cssv("--s1"):cssv("--axis")},g);
+    svg("rect",{x:x-slot/2,y:PT,width:slot,height:y(0)-PT,fill:"transparent",class:"focus-ring"},g);
+    svg("text",{x,y:y(v)-5,"text-anchor":"middle",class:"val"},s).textContent=v;
+    svg("text",{x,y:H-6,"text-anchor":"middle"},s).textContent="’"+yr.slice(2);
+    const note=yr==="2020"?" — COVID 50% parking cap":(yr==="2019"?" — data starts Aug 31":(yr==="2026"?" — season in progress":""));
+    hover(g,()=>[[v+" closure days","in "+yr+(inSel?"":" (not used in estimates)")],[coverageLabel(yr)+note]]);
+  });
+  function coverageLabel(yr){ const [a,b]=DATA.coverage[yr]; return a.slice(5).replace("-","/")+" – "+b.slice(5).replace("-","/"); }
+  const tbl=$("yrTbl"); tbl.textContent="";
+  const t=el("table",{},tbl); const hr=el("tr",{},el("thead",{},t));
+  ["Year","Closure days","Closure posts","Coverage"].forEach((h,i)=>el("th",{class:i===1||i===2?"num":""},hr,h));
+  const tb=el("tbody",{},t);
+  years.forEach(yr=>{ const r=el("tr",{},tb);
+    el("td",{},r,yr); el("td",{class:"num"},r,byY[yr]?byY[yr].size:0);
+    el("td",{class:"num"},r,DATA.events.filter(e=>e.d.slice(0,4)===yr).length);
+    el("td",{},r,DATA.coverage[yr][0]+" → "+DATA.coverage[yr][1]);
+  });
+}
+
+/* ================= chart: duration histogram ================= */
+function renderHist(){
+  const gaps=filteredEvents().filter(e=>e.g!=null&&!e.rn).map(e=>e.g);
+  const edges=[0,.5,1,1.5,2,2.5,3,4,5,6,12];
+  const labels=["<30m","30m–1h","1–1.5h","1.5–2h","2–2.5h","2.5–3h","3–4h","4–5h","5–6h","6h+"];
+  const bins=labels.map(()=>0);
+  for(const g of gaps){ for(let i=0;i<labels.length;i++){ if(g<edges[i+1]||i===labels.length-1){bins[i]++;break;} } }
+  const box=$("histChart"); box.textContent="";
+  const W=460,H=200,PL=30,PB=40,PT=16;
+  const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"},box);
+  const vmax=Math.max(...bins,1), ymax=Math.ceil(vmax/10)*10;
+  const y=v=>PT+(H-PT-PB)*(1-v/ymax);
+  for(let g=0;g<=ymax;g+=10){ svg("line",{x1:PL,x2:W-4,y1:y(g),y2:y(g),stroke:cssv("--grid")},s);
+    svg("text",{x:PL-6,y:y(g)+4,"text-anchor":"end"},s).textContent=g; }
+  const slot=(W-PL-10)/bins.length, bw=Math.min(24,slot*.7);
+  const peak=bins.indexOf(Math.max(...bins));
+  bins.forEach((v,i)=>{
+    const x=PL+i*slot+slot/2;
+    const g=svg("g",{class:"mk",tabindex:"0"},s);
+    svg("rect",{x:x-bw/2,y:y(v),width:bw,height:y(0)-y(v),rx:v?3:0,fill:cssv("--s1")},g);
+    svg("rect",{x:x-slot/2,y:PT,width:slot,height:y(0)-PT,fill:"transparent",class:"focus-ring"},g);
+    svg("text",{x,y:H-24,"text-anchor":"middle",transform:`rotate(-30 ${x} ${H-24})`},s).textContent=labels[i];
+    if(i===peak) svg("text",{x,y:y(v)-5,"text-anchor":"middle",class:"dl"},s).textContent=v;
+    hover(g,()=>[[v+" closures",""],[labels[i]+" until reopening post"],[Math.round(v/gaps.length*100)+"% of "+gaps.length+" same-day reopenings"]]);
+  });
+  svg("text",{x:W-4,y:PT-4,"text-anchor":"end"},s).textContent="n="+gaps.length+" · median "+(median(gaps)||0).toFixed(1)+"h";
+  const tbl=$("histTbl"); tbl.textContent="";
+  const t=el("table",{},tbl); const hr=el("tr",{},el("thead",{},t));
+  ["Duration","Closures","Share"].forEach((h,i)=>el("th",{class:i?"num":""},hr,h));
+  const tb=el("tbody",{},t);
+  labels.forEach((l,i)=>{ const r=el("tr",{},tb); el("td",{},r,l); el("td",{class:"num"},r,bins[i]); el("td",{class:"num"},r,gaps.length?Math.round(bins[i]/gaps.length*100)+"%":"–"); });
+}
+
+/* ================= chart: season strip ================= */
+/* ================= event log (filter + sort + timeline bar) ================= */
+const logState={ year:"", day:"", wx:"", q:"", sortK:"date", sortDir:-1 };
+
+function drawLog(){
+  const box=$("logTbl"); box.textContent="";
+  let evs=filteredEvents();
+  if(logState.year) evs=evs.filter(e=>e.d.slice(0,4)===logState.year);
+  if(logState.day)  evs=evs.filter(e=>dayTypeOf(e.d)===logState.day);
+  if(logState.wx)   evs=evs.filter(e=>wq(e.d)===logState.wx);
+  if(logState.q){ const q=logState.q.toLowerCase(); evs=evs.filter(e=>(e.d+" "+e.t).toLowerCase().includes(q)); }
+  evs=[...evs].sort((a,b)=> logState.sortK==="cm"
+    ? (a.cm-b.cm)*logState.sortDir || b.d.localeCompare(a.d)
+    : a.d.localeCompare(b.d)*logState.sortDir || a.cm-b.cm);
+  $("logCount").textContent=`${evs.length} shown`;
+
+  const dx=t=>(Math.max(7*60,Math.min(19*60,t))-7*60)/(12*60)*1000;
+  const t=el("table",{},box); const hr=el("tr",{},el("thead",{},t));
+  ["Date","Day","Weather","When closed  (7am → 7pm)","Post"].forEach(h=>el("th",{},hr,h));
+  const tb=el("tbody",{},t);
+  for(const e of evs){
+    const r=el("tr",{},tb);
+    const dd=new Date(e.d+"T12:00:00");
+    el("td",{style:"white-space:nowrap"},r,e.d);
+    el("td",{},r,dd.toLocaleDateString("en-US",{weekday:"short"}));
+    const w=WX[e.d];
+    const wc=el("td",{style:"white-space:nowrap",title:wxLine(e.d)||""},r);
+    if(w){ el("span",{},wc,wxIcon(e.d)); wc.append(" "+Math.round(w[0])+"°"); } else wc.append("—");
+    // timeline bar (single interval, 7am–7pm), hover popup like the drill-down
+    const iv=interval(e), overnight=iv[2];
+    const tc=el("td",{},r);
+    const tk=svg("svg",{class:"day-track",viewBox:"0 0 1000 22",preserveAspectRatio:"none"},tc);
+    svg("line",{x1:0,x2:1000,y1:11,y2:11,stroke:cssv("--grid"),"stroke-width":1,"vector-effect":"non-scaling-stroke"},tk);
+    svg("line",{x1:dx(12*60),x2:dx(12*60),y1:3,y2:19,stroke:cssv("--grid"),"stroke-width":1,"vector-effect":"non-scaling-stroke"},tk); // noon ref
+    const x0=dx(iv[0]), x1=Math.max(dx(iv[1]),x0+2);
+    const rect=svg("rect",{x:x0,y:5,width:x1-x0,height:12,rx:2,fill:cssv(overnight?"--seq300":"--s1"),class:"day-seg"},tk);
+    hover(rect,()=>{
+      const lines=[["closed "+fmtT(iv[0])+(overnight?" → next day":" – "+fmtT(iv[1]))]];
+      lines.push([overnight? "reopened next morning" : fmtDur(iv[1]-iv[0])+" closed"]);
+      const wl=wxLine(e.d); if(wl) lines.push([wl]);
+      lines.push([dd.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"})]);
+      return lines;
+    });
+    // post links: closed + (reopened, when we have its post)
+    const pc=el("td",{style:"white-space:nowrap"},r);
+    el("a",{href:e.u,rel:"noopener",target:"_blank",title:e.t},pc,"close ↗");
+    if(e.ru){ pc.append(" · "); el("a",{href:e.ru,rel:"noopener",target:"_blank"},pc,"open ↗"); }
+    else { pc.append(" "); el("span",{class:"flabel"},pc,"· —"); }
+  }
+}
+
+function renderLog(){
+  // one-time: fill the season dropdown and paint the legend swatches
+  const ysel=$("logYear");
+  if(!ysel.children.length){
+    el("option",{value:""},ysel,`All (${Y0}–26)`);
+    for(const y of [...new Set(filteredEvents().map(e=>e.d.slice(0,4)))].sort().reverse())
+      el("option",{value:y},ysel,y);
+    $("keySame").style.background=cssv("--s1");
+    $("keyOver").style.background=cssv("--seq300");
+  }
+  $("logSummary").textContent=`Capacity closures (${filteredEvents().length} posts, ${Y0}–2026)`;
+  drawLog();
+
+  const others=DATA.full.filter(o=>o.d && o.d.slice(0,4)>=Y0);
+  $("otherSummary").textContent=`Other closures — weather, police activity, COVID (${others.length})`;
+  const ob=$("otherTbl"); ob.textContent="";
+  const t2=el("table",{},ob); const hr2=el("tr",{},el("thead",{},t2));
+  ["Date","Type","Announcement","Post"].forEach(h=>el("th",{},hr2,h));
+  const tb2=el("tbody",{},t2);
+  for(const o of [...others].sort((a,b)=>b.d.localeCompare(a.d))){
+    const r=el("tr",{},tb2);
+    el("td",{style:"white-space:nowrap"},r,o.d);
+    el("td",{style:"white-space:nowrap"},r,o.type.replace("_"," "));
+    el("td",{},r,o.t.length>160?o.t.slice(0,157)+"…":o.t);
+    const td=el("td",{},r); el("a",{href:o.u,rel:"noopener",target:"_blank"},td,"post ↗");
+  }
+}
+
+/* ================= wiring ================= */
+function renderAll(){
+  const days=buildDays();
+  renderPlanner(days);
+  renderCum(days);
+  renderReopen();
+  renderHeatmap(days);
+  renderWx(days);
+  renderMonth(days);
+  renderYears();
+  renderHist();
+  renderLog();
+}
+(function initSegs(){
+  $("dtSeg").querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click",()=>{ dt=btn.dataset.dt;
+      $("dtSeg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));
+      renderAll(); });
+  });
+  $("mSel").addEventListener("input",e=>{ state.month=+e.target.value; renderAll(); });
+  $("wSel").addEventListener("input",e=>{ state.wx=e.target.value; const d=buildDays(); renderPlanner(d); renderCum(d); });
+  $("tSel").addEventListener("input",e=>{ state.arr=+e.target.value; renderPlanner(buildDays()); if(cumTimeUpdate)cumTimeUpdate(state.arr); });
+  $("cSel").addEventListener("input",e=>{ state.closedAt=+e.target.value; renderReopen(); });
+  // event-log filters + sort (re-render just the log)
+  $("logYear").addEventListener("input",e=>{ logState.year=e.target.value; drawLog(); });
+  $("logDay").addEventListener("input",e=>{ logState.day=e.target.value; drawLog(); });
+  $("logWx").addEventListener("input",e=>{ logState.wx=e.target.value; drawLog(); });
+  $("logSearch").addEventListener("input",e=>{ logState.q=e.target.value.trim(); drawLog(); });
+  document.querySelectorAll(".log-sort button").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const k=btn.dataset.k;
+      if(logState.sortK===k) logState.sortDir*=-1;
+      else { logState.sortK=k; logState.sortDir = k==="date"? -1 : 1; }
+      document.querySelectorAll(".log-sort button").forEach(b=>{
+        const on=b.dataset.k===logState.sortK;
+        b.setAttribute("aria-pressed",on);
+        const base=b.dataset.k==="date"?"Date":"Closing time";
+        b.textContent=on? base+(logState.sortDir<0?" ↓":" ↑") : base;
+      });
+      drawLog();
+    });
+  });
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change",renderAll);
+  const evs=filteredEvents();
+  const last=evs.map(e=>e.d).sort().pop();
+  const lastLbl=last? new Date(last+"T12:00:00").toLocaleDateString("en-US",{month:"short",year:"numeric"}) : "";
+  $("hdrStats").textContent=` (${evs.length} capacity closures, ${Y0} – ${lastLbl})`;
+  if(last) $("footDate").textContent="Data through "+new Date(last+"T12:00:00").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})+" · ";
+})();
+renderAll();
+</script>
+</body>
+</html>

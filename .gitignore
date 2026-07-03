@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.pyc
+raw_tweets*.jsonl
+.venv/
+.x_auth.json

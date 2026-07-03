@@ -1,0 +1,115 @@
+# walden-tracker
+
+Tracks Walden Pond State Reservation parking-capacity closures (announced by
+[@waldenpondstate](https://x.com/waldenpondstate)) and publishes
+**`index.html`** — a self-contained dashboard that estimates the chance the
+park is closed for a planned visit, when it typically closes, and how long
+reopening takes, correlated with weather.
+
+## Layout
+
+```
+index.html               the built site (all data embedded; this is what gets deployed)
+scripts/
+  fetch_tweets.py        source 1: Wayback Machine captures (~2017–2020)
+  fetch_twitterapi.py    source 2: twitterapi.io advanced_search backfill (2020–present)
+  fetch_timeline.py      source 3: twitterapi.io user-timeline (cheap updates, but lossy:
+                         both API endpoints drop some posts)
+  fetch_playwright.py    source 4: real-browser fetch of the profile timeline (the
+                         completeness backstop; needs a one-time X login, see below)
+  parse_closures.py      raw tweets -> data/closures.csv (classified events)
+  validate_pairs.py      closures.csv logic -> data/closure_related.csv (closure↔reopen pairs)
+  fetch_weather.py       Open-Meteo archive -> data/weather.csv (free, no key)
+  build_site.py          closure_related.csv + weather.csv + site_template.html -> index.html
+  site_template.html     the page, with a __DATA__ placeholder
+data/
+  raw_tweets*.jsonl      raw tweets, one schema across sources (gitignored)
+  closures.csv           every classified post
+  closure_related.csv    closure events paired with their reopening posts
+  closure_unrelated.csv  events/other posts, for eyeballing the classifier
+  weather.csv            daily checkpoints: 9am/noon/3pm temps, daytime high, rain, cloud
+```
+
+All scripts run from anywhere (paths are resolved relative to the repo), e.g.
+`python3 scripts/build_site.py`.
+
+## Updating with new data (do this when new closures accumulate)
+
+1. **Fetch new tweets.** The browser pull is the source of record — the
+   twitterapi.io endpoints provably drop ~half of recent closures (a logged-in
+   browser pull recovered 577 posts, 460 of them closures/reopenings, that no
+   API endpoint had). One-time setup:
+
+   ```bash
+   python3 -m venv .venv && .venv/bin/pip install playwright \
+     && .venv/bin/playwright install chromium
+   .venv/bin/python scripts/fetch_playwright.py --import-cookies
+     # paste auth_token + ct0 from your normal browser (x.com DevTools ->
+     # Application -> Cookies). X blocks logins made inside automated browsers,
+     # so log in by hand there and reuse that session — no automated login.
+     # The session is saved to .x_auth.json (gitignored); refresh the cookies
+     # when it expires. --login (automated-browser login) exists but usually
+     # gets challenged.
+   ```
+
+   Then, to pull anything new (resumable — already-saved ids are skipped;
+   `--since` just bounds how far back it scrolls):
+
+   ```bash
+   .venv/bin/python scripts/fetch_playwright.py --since 2026-06-01
+   ```
+
+   The twitterapi.io fetchers (`fetch_timeline.py` / `fetch_twitterapi.py`,
+   keyed from `.env`) remain as a cheap, no-login supplement, but don't rely on
+   them for completeness.
+
+2. **Rebuild the derived data and the site:**
+
+   ```bash
+   python3 scripts/parse_closures.py    # reparse & classify everything
+   python3 scripts/validate_pairs.py    # re-pair closures with reopenings
+   python3 scripts/fetch_weather.py     # extend weather through today
+   python3 scripts/build_site.py        # -> index.html
+   ```
+
+3. **Sanity-check** before publishing: open `index.html`, confirm the header
+   count/date advanced, and skim the event log's newest rows against the
+   actual feed. The header, footer date, and every estimate update
+   automatically from the embedded data.
+
+4. Commit `index.html` (and the refreshed `data/*.csv`) and push — that's the
+   deployment.
+
+Notes for future season boundaries:
+- `build_site.py` sets each year's **coverage window** (the denominator for
+  the probabilities): May 1 – Oct 31, with the in-progress season
+  automatically ending at yesterday. Nothing to update by hand — but only
+  rebuild right after fetching tweets, so the closure record actually
+  reaches that date.
+- Estimates deliberately use **2021 onward** (2019 is partial, 2020 had COVID
+  parking caps). That cutoff is `Y0` in `site_template.html`.
+
+## Deploying on GitHub Pages
+
+The site is the single `index.html` at the repo root — no build step on the
+server, no assets:
+
+```bash
+git init && git add -A && git commit -m "walden pond closure tracker"
+gh repo create walden-tracker --public --source=. --push
+gh api repos/{owner}/walden-tracker/pages -X POST \
+  -f 'source[branch]=main' -f 'source[path]=/'
+```
+
+(or: repo Settings → Pages → deploy from branch `main`, folder `/`).
+`.env` and the raw tweet files are gitignored; the CSVs are small and safe to
+publish.
+
+## Data sources
+
+| Source | Coverage | Script |
+|--------|----------|--------|
+| Wayback Machine | ~2017–2020 (older HTML captures) | `scripts/fetch_tweets.py` |
+| twitterapi.io (3rd-party X API) | 2020–present | `scripts/fetch_twitterapi.py` |
+| Open-Meteo ERA5 archive | weather for every tracked day | `scripts/fetch_weather.py` |
+| DCR Park Alerts ArcGIS feed | live status only, poll forward | *(not built yet)* |
