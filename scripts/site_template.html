@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Will Walden Pond be closed? — parking closure odds &amp; reopening times</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 <style>
 :root{
   --page:#f9f9f7; --surface:#fcfcfb;
@@ -33,7 +35,20 @@ body{
   padding:28px 20px 64px;
 }
 .wrap{max-width:1060px;margin:0 auto}
-header.top{margin-bottom:20px}
+header.top{margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;gap:22px}
+.top-text{min-width:0}
+.lake{
+  flex:none;width:66px;height:41px;margin-top:4px;
+  background:linear-gradient(150deg,#3aa0e6 0%,#1596b0 60%,#12808f 100%);
+  -webkit-mask:url(logo.png) center/contain no-repeat; mask:url(logo.png) center/contain no-repeat;
+  filter:drop-shadow(0 2px 5px rgba(21,150,176,.35));
+  transform:rotate(-3deg);
+}
+@media (prefers-color-scheme: dark){
+  .lake{background:linear-gradient(150deg,#4aa9ec 0%,#1ea6bf 60%,#178f9e 100%);
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
+}
+@media(max-width:560px){ .lake{width:52px;height:32px} }
 h1{font-size:26px;font-weight:650;margin:0 0 6px;letter-spacing:-.01em}
 .sub{color:var(--ink-2);max-width:72ch;margin:0}
 .sub a{color:inherit}
@@ -146,10 +161,13 @@ footer{margin-top:26px;font-size:12px;color:var(--muted)}
 <body>
 <div class="wrap">
 <header class="top">
-  <h1>Will Walden Pond be closed?</h1>
-  <p class="sub">When the parking lots fill, Walden Pond State Reservation closes to <em>all</em> incoming
-  visitors — no walk-ins, no drop-offs — until enough people leave. This page estimates the odds from
-  every closure announcement posted by <a href="https://x.com/waldenpondstate" rel="noopener">@waldenpondstate</a><span id="hdrStats"></span>.</p>
+  <div class="top-text">
+    <h1>Will Walden Pond be closed?</h1>
+    <p class="sub">When the parking lots fill, Walden Pond State Reservation closes to <em>all</em> incoming
+    visitors — no walk-ins, no drop-offs — until enough people leave. This page estimates the odds from
+    every closure announcement posted by <a href="https://x.com/waldenpondstate" rel="noopener">@waldenpondstate</a><span id="hdrStats"></span>.</p>
+  </div>
+  <span class="lake" role="img" aria-label="Walden Pond outline"></span>
 </header>
 
 <!-- ============ USE CASE 1: planning a visit ============ -->
