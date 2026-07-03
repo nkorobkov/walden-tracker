@@ -127,5 +127,17 @@ def main():
     print(f"index.html: {len(events)} capacity closures, {len(other)} other events, "
           f"seasons {min(coverage)}-{max(coverage)}")
 
+    # SEO: sitemap + robots (lastmod = most recent closure, i.e. when content changed)
+    site = "https://walden.nkorobkov.com"
+    lastmod = max(e["d"] for e in events)
+    with open(os.path.join(ROOT, "sitemap.xml"), "w") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                f'  <url><loc>{site}/</loc><lastmod>{lastmod}</lastmod>'
+                '<changefreq>daily</changefreq><priority>1.0</priority></url>\n'
+                '</urlset>\n')
+    with open(os.path.join(ROOT, "robots.txt"), "w") as f:
+        f.write(f"User-agent: *\nAllow: /\n\nSitemap: {site}/sitemap.xml\n")
+
 if __name__ == "__main__":
     main()
