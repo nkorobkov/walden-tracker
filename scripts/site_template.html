@@ -153,6 +153,27 @@ svg .dl{fill:var(--ink-2);font-weight:600}
   .day-lab .wx-mob-hide{display:none}
   .day-lab .wd{margin-left:3px}
 }
+/* ---- duration label written on a closure bar ---- */
+.seg-dur{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  font-size:10px;font-weight:600;color:#fff;pointer-events:none;white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:560px){ .seg-dur{display:none} }
+/* ---- quiet-days summary (comparable days with no closure) ---- */
+.quiet{
+  margin:10px 6px 2px;border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;background:color-mix(in srgb,var(--good) 5%,transparent);
+}
+.quiet-head{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.quiet-num{font-size:22px;font-weight:650;color:var(--ink);line-height:1}
+.quiet-txt{font-size:13px;color:var(--ink-2)}
+.quiet-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;max-height:136px;overflow:auto}
+.chip{
+  font-size:11px;color:var(--ink-2);border:1px solid var(--border);border-radius:999px;
+  padding:2px 9px;white-space:nowrap;background:var(--surface);font-variant-numeric:tabular-nums;
+}
+.chip .wx-t{color:var(--muted)}
 /* ---- event-log controls ---- */
 .log-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:12px 0 8px;font-size:12px}
 .log-controls label{display:inline-flex;gap:5px;align-items:center;color:var(--muted)}
@@ -209,6 +230,7 @@ footer{margin-top:26px;font-size:12px;color:var(--muted)}
       <div class="ctl">
         <label for="mSel">Month</label>
         <select id="mSel">
+          <option value="all">All months (May–Oct)</option>
           <option value="5">May</option><option value="6">June</option>
           <option value="7" selected>July</option><option value="8">August</option>
           <option value="9">September</option><option value="10">October</option>
@@ -268,9 +290,35 @@ footer{margin-top:26px;font-size:12px;color:var(--muted)}
 <!-- ============ USE CASE 2: it's closed right now ============ -->
 <section class="card">
   <h2>It's closed right now — when will it reopen?</h2>
-  <p class="desc">Based on the gap between each closure announcement and the matching “we have reopened” post.</p>
+  <p class="desc">Based on the gap between each closure announcement and the matching “we have reopened” post, on closures comparable to yours.</p>
   <div class="planner">
     <div>
+      <div class="ctl">
+        <label for="rmSel">Month</label>
+        <select id="rmSel">
+          <option value="all" selected>All months (May–Oct)</option>
+          <option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option>
+          <option value="9">September</option><option value="10">October</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Day</label>
+        <div class="seg" id="rdSeg" role="group" aria-label="Day type">
+          <button data-rdt="" aria-pressed="true">All</button>
+          <button data-rdt="we" aria-pressed="false">Weekend / holiday</button>
+          <button data-rdt="wd" aria-pressed="false">Weekday</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label for="rwSel">Weather</label>
+        <select id="rwSel">
+          <option value="any" selected>Any weather</option>
+          <option value="hot">Hot &amp; dry (85°F+)</option>
+          <option value="warm">Warm &amp; dry (75–85°F)</option>
+          <option value="cool">Cool (&lt;75°F) or rainy</option>
+        </select>
+      </div>
       <div class="ctl">
         <label for="cSel">Closure was announced at — <span class="range-val" id="cVal"></span></label>
         <input type="range" id="cSel" min="420" max="1080" step="30" value="780">
@@ -283,11 +331,17 @@ footer{margin-top:26px;font-size:12px;color:var(--muted)}
       <div class="tiles" style="margin-top:0">
         <div class="tile"><div class="tl">Typical wait to reopen</div><div class="tv" id="rMed">–</div><div class="td">median, same-day reopenings</div></div>
         <div class="tile"><div class="tl">Middle 50% of waits</div><div class="tv" id="rIqr">–</div><div class="td">half of closures reopen in this window</div></div>
-        <div class="tile"><div class="tl">Stays closed overnight</div><div class="tv" id="rOver">–</div><div class="td" id="rOverD"></div></div>
       </div>
+      <p class="hm-title" style="margin:18px 0 8px">How long comparable closures lasted</p>
+      <div class="legend" id="reopLegend"></div>
+      <div id="reopHist" style="max-width:520px"></div>
       <p class="note" id="reopenNote"></p>
     </div>
   </div>
+  <details><summary id="reopDaysSummary">Show every comparable closure</summary>
+    <p class="note" id="reopDaysLegend" style="margin-top:10px"></p>
+    <div class="tbl-scroll" id="reopDays"></div>
+  </details>
 </section>
 
 <!-- ============ DRILL-DOWN ============ -->
@@ -530,11 +584,11 @@ function riskOf(p){
   return ["Very high","--critical"];
 }
 function plannerDayLabel(){
-  return `${MONTHS[state.month]} ${dt==="we"?"weekend/holiday":"weekday"}`+
+  return `${state.month==="all"?"May–Oct":MONTHS[state.month]} ${dt==="we"?"weekend/holiday":"weekday"}`+
          (state.wx==="any"?"":`, ${WX_LABEL[state.wx]}`);
 }
 function plannerMatch(days){
-  return days.filter(d=>d.m===state.month && d.dt===dt && (state.wx==="any" || d.q===state.wx));
+  return days.filter(d=>(state.month==="all"||d.m===state.month) && d.dt===dt && (state.wx==="any" || d.q===state.wx));
 }
 function renderPlanner(days){
   const t=state.arr, m=state.month;
@@ -645,6 +699,7 @@ function renderCum(days){
   });
   const rowRefs=[];
   for(const d of sorted){
+    if(!d.ivs) continue;   // no-closure days are summarized in one block below
     const row=el("div",{class:"day-row"},host);
     const dd=new Date(d.ds+"T12:00:00");
     const lab=el("div",{class:"day-lab"},row);
@@ -679,7 +734,24 @@ function renderCum(days){
       });
     }
     const selLine=svg("line",{y1:1,y2:21,stroke:cssv("--ink"),"stroke-width":1.5,opacity:.55,"vector-effect":"non-scaling-stroke"},tk);
-    rowRefs.push({row,segs,selLine,first:d.ivs?d.ivs[0][0]:null});
+    rowRefs.push({row,segs,selLine,first:d.ivs[0][0]});
+  }
+  // compact all no-closure days into one summary block with date chips
+  const quiet=sorted.filter(d=>!d.ivs);
+  if(quiet.length){
+    const qb=el("div",{class:"quiet"},host);
+    const qh=el("div",{class:"quiet-head"},qb);
+    el("span",{class:"quiet-num"},qh,quiet.length);
+    el("span",{class:"quiet-txt"},qh,`comparable day${quiet.length>1?"s":""} had no closure at all — the park stayed open all day`);
+    const qc=el("div",{class:"quiet-chips"},qb);
+    for(const d of quiet){
+      const dd=new Date(d.ds+"T12:00:00");
+      const wl=wxLine(d.ds);
+      const chip=el("span",{class:"chip",title:dd.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})+(wl?" · "+wl:"")},qc);
+      chip.append(dd.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" ’"+d.ds.slice(2,4));
+      const w=WX[d.ds];
+      if(w){ chip.append(" "+wxIcon(d.ds)); el("span",{class:"wx-t"},chip," "+Math.round(w[0])+"°"); }
+    }
   }
   cumTimeUpdate=function(t){
     const mx=Math.max(T0,Math.min(T1,t));
@@ -751,6 +823,13 @@ function renderWx(days){
 }
 
 /* ================= render: closed-now ================= */
+const rState={ month:"all", dt:"", wx:"any" };
+function reopenFilterLabel(){
+  const parts=[rState.month==="all"?"May–Oct":MONTHS[rState.month]];
+  if(rState.dt) parts.push(rState.dt==="we"?"weekends/holidays":"weekdays");
+  if(rState.wx!=="any") parts.push(WX_LABEL[rState.wx]);
+  return parts.join(", ");
+}
 function renderReopen(){
   const ch=state.closedAt;
   $("cVal").textContent=fmtT(ch);
@@ -758,20 +837,164 @@ function renderReopen(){
   // with a matched reopening — otherwise late-afternoon closures that reopen
   // next morning without a reopening tweet (g=null) vanish and "overnight" is
   // wildly understated. Median wait uses only same-day closures with a known gap.
-  const all=filteredEvents();
+  const all=filteredEvents().filter(e=>
+    (rState.month==="all" || +e.d.slice(5,7)===rState.month) &&
+    (!rState.dt || dayTypeOf(e.d)===rState.dt) &&
+    (rState.wx==="any" || wq(e.d)===rState.wx));
   let win=45, pool=all.filter(e=>Math.abs(e.cm-ch)<=win);
   if(pool.length<10){ win=90; pool=all.filter(e=>Math.abs(e.cm-ch)<=win); }
   const overn=pool.filter(e=>interval(e)[2]).length;
   const sameDay=pool.filter(e=>!interval(e)[2] && e.g!=null).map(e=>e.g*60);
+  const unk=pool.length-overn-sameDay.length;
+  $("rMed").textContent=sameDay.length? "~"+fmtDur(median(sameDay)) : (pool.length? "next morning":"—");
+  $("rIqr").textContent=sameDay.length>3? fmtDur(quantile(sameDay,.25))+" – "+fmtDur(quantile(sameDay,.75)) : "—";
+  renderReopHist(sameDay,overn,pool.length);
+  renderReopDays(pool);
   if(pool.length){
-    $("rMed").textContent=sameDay.length? "~"+fmtDur(median(sameDay)) : "next morning";
-    $("rIqr").textContent=sameDay.length>3? fmtDur(quantile(sameDay,.25))+" – "+fmtDur(quantile(sameDay,.75)) : "—";
-    $("rOver").textContent=Math.round(overn/pool.length*100)+"%";
-    $("rOverD").textContent=`${overn} of ${pool.length} closures announced ${fmtT(ch-win)}–${fmtT(ch+win)}`;
-    $("reopenNote").textContent=`Based on ${pool.length} closures announced within ${win===45?"±45 min":"±1½ h"} of ${fmtT(ch)} since 2021. About 1 in 5 closure posts states a planned reopening time — when it does, trust the post.`;
+    const small=pool.length<12? " Few cases match — treat this as a rough estimate." : "";
+    $("reopenNote").textContent=`Based on ${pool.length} closures announced within ${win===45?"±45 min":"±1½ h"} of ${fmtT(ch)} on ${reopenFilterLabel()} days since 2021 — ${sameDay.length} reopened the same day, ${overn} stayed closed overnight${unk?`, ${unk} with no reopening post`:""}.${small} About 1 in 5 closure posts states a planned reopening time — when it does, trust the post.`;
   } else {
-    $("rMed").textContent=$("rIqr").textContent=$("rOver").textContent="—";
-    $("rOverD").textContent=""; $("reopenNote").textContent="No closures near this time on record since 2021.";
+    $("reopenNote").textContent="No closures match these filters near this time since 2021 — try widening the filters.";
+  }
+}
+/* histogram: x = number of closures, y = closure duration (15-min bins) */
+function renderReopHist(sameDay,novern,ntot){
+  const box=$("reopHist"); box.textContent="";
+  const lg=$("reopLegend"); lg.textContent="";
+  if(!ntot){ el("p",{class:"note"},box,"No matching closures."); return; }
+  for(const [c,l] of [["--s1","reopened same day"],["--seq300","stayed closed overnight"]]){
+    const k=el("span",{class:"k"},lg); el("span",{class:"sw",style:`background:${cssv(c)}`},k); k.append(l);
+  }
+  const BIN=15, MAXM=240, nb=MAXM/BIN;           // 15-min bins, 0–4h, then 4h+
+  const bins=Array(nb+1).fill(0);
+  for(const m of sameDay) bins[Math.min(Math.floor(m/BIN),nb)]++;
+  const fm=m=>m===0?"0":(m%60===0? m/60+"h" : (m<60? m+"m" : Math.floor(m/60)+"h"+String(m%60).padStart(2,"0")));
+  const W=520,rowH=13,PL=60,PR=86,PT=6,gap=10;
+  const oy=PT+(nb+1)*rowH+gap;                    // overnight row top
+  const H=oy+rowH+16;
+  const s=svg("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%",role:"img","aria-label":"Histogram of closure durations"},box);
+  const xmax=Math.max(...bins,novern,1);
+  const X=v=>PL+v/xmax*(W-PL-PR);
+  const yOf=i=>PT+i*rowH;
+  const yDur=m=>PT+Math.min(m,MAXM)/BIN*rowH;     // continuous duration → y
+  const step=xmax>40?20:xmax>20?10:xmax>8?5:xmax>4?2:1;
+  for(let g=0;g<=xmax;g+=step){
+    svg("line",{x1:X(g),x2:X(g),y1:PT,y2:oy+rowH,stroke:cssv("--grid")},s);
+    svg("text",{x:X(g),y:H-3,"text-anchor":"middle"},s).textContent=g;
+  }
+  for(let h=0;h<=4;h++){
+    svg("line",{x1:PL-3,x2:PL,y1:yDur(h*60),y2:yDur(h*60),stroke:cssv("--axis")},s);
+    svg("text",{x:PL-7,y:yDur(h*60)+4,"text-anchor":"end"},s).textContent=h+"h";
+  }
+  // median of same-day waits (the 50% interval lives in the tile above)
+  if(sameDay.length>3){
+    const md=median(sameDay);
+    svg("line",{x1:PL,x2:W-PR,y1:yDur(md),y2:yDur(md),stroke:cssv("--ink"),"stroke-width":1.5,opacity:.5},s);
+    svg("text",{x:W-PR+5,y:yDur(md)+4,class:"dl"},s).textContent="median "+fmtDur(md);
+  }
+  const pk=bins.indexOf(Math.max(...bins));
+  bins.forEach((v,i)=>{
+    const lab=i<nb? fm(i*BIN)+"–"+fm((i+1)*BIN) : "over 4h";
+    const g=svg("g",{class:"mk",tabindex:"0"},s);
+    if(v) svg("rect",{x:PL,y:yOf(i)+1,width:Math.max(X(v)-PL,1.5),height:rowH-2,rx:2,fill:cssv("--s1")},g);
+    svg("rect",{x:PL,y:yOf(i),width:W-PL-PR,height:rowH,fill:"transparent",class:"focus-ring"},g);
+    if(v && i===pk){                              // label the peak; inside the bar if the tip is near the annotations
+      if(X(v)+18<=W-PR) svg("text",{x:X(v)+4,y:yOf(i)+rowH-3,class:"val"},s).textContent=v;
+      else svg("text",{x:X(v)-4,y:yOf(i)+rowH-3,"text-anchor":"end",style:"fill:#fff;font-weight:600"},s).textContent=v;
+    }
+    hover(g,()=>[[v+(v===1?" closure":" closures")],["reopened "+lab+" after closing"],
+      sameDay.length?[Math.round(v/sameDay.length*100)+"% of "+sameDay.length+" same-day reopenings"]:[""]]);
+  });
+  // overnight row, set apart below the duration scale
+  svg("text",{x:PL-7,y:oy+rowH-3,"text-anchor":"end"},s).textContent="overnight";
+  const og=svg("g",{class:"mk",tabindex:"0"},s);
+  if(novern) svg("rect",{x:PL,y:oy+1,width:Math.max(X(novern)-PL,1.5),height:rowH-2,rx:2,fill:cssv("--seq300")},og);
+  svg("rect",{x:PL,y:oy,width:W-PL-PR,height:rowH,fill:"transparent",class:"focus-ring"},og);
+  hover(og,()=>[[novern+(novern===1?" closure":" closures")],["didn't reopen the same day"],
+    [Math.round(novern/ntot*100)+"% of "+ntot+" comparable closures"]]);
+}
+/* per-closure drill-down: one 7am–7pm track per comparable closure */
+function renderReopDays(pool){
+  const host=$("reopDays"); host.textContent="";
+  $("reopDaysSummary").textContent=pool.length? `Show all ${pool.length} comparable closures` : "Show comparable closures";
+  if(!pool.length){ $("reopDaysLegend").textContent=""; return; }
+  $("reopDaysLegend").textContent=`Sorted shortest wait first, overnight closures last. Blue bar = closed window (click → closure post); green = open again after reopening, until the day's next closure (faded bars) or 7 pm. The vertical line is your ${fmtT(state.closedAt)} announcement time.`;
+  const DT0=7*60, DT1=19*60;
+  const dx=t=>(Math.max(DT0,Math.min(DT1,t))-DT0)/(DT1-DT0)*1000;
+  const head=el("div",{class:"dh-head"},host);
+  el("div",{style:"white-space:nowrap;overflow:hidden;text-overflow:ellipsis"},head,"day · shortest wait first");
+  const ticks=el("div",{class:"ticks"},head);
+  for(let h=7;h<=19;h+=3) el("span",{},ticks,fmtT(h*60).replace(" ",""));
+  const rows=pool.map(e=>{
+    const iv=interval(e);
+    const known=e.g!=null && !e.rn && !iv[2];
+    return {e,iv,known,dur: iv[2]? 1e9 : (known? Math.round(e.g*60) : iv[1]-iv[0])};
+  }).sort((a,b)=>(a.dur-b.dur)||a.e.d.localeCompare(b.e.d));
+  const byDay={};
+  for(const ev of filteredEvents()) (byDay[ev.d]=byDay[ev.d]||[]).push(ev);
+  const selX=dx(state.closedAt);
+  for(const r of rows){
+    const e=r.e, iv=r.iv, overnight=iv[2];
+    const row=el("div",{class:"day-row"},host);
+    const dd=new Date(e.d+"T12:00:00");
+    const lab=el("div",{class:"day-lab"},row);
+    el("span",{class:"d-full"},lab,e.d);
+    const [yy,mm,ddn]=e.d.split("-");
+    el("span",{class:"d-compact"},lab,`${yy.slice(2)}/${+mm}/${+ddn}`);
+    el("span",{class:"wd"},lab," "+dd.toLocaleDateString("en-US",{weekday:"short"}));
+    const w=WX[e.d];
+    if(w){
+      el("span",{class:"wx-ic wx-mob-hide",title:wxLine(e.d)},lab,wxIcon(e.d));
+      el("span",{class:"wx-t wx-mob-hide"},lab,Math.round(w[0])+"°");
+    }
+    // the track is a stretched svg (glyphs would distort), so the duration
+    // label is an HTML overlay positioned at the bar's midpoint
+    const cell=el("div",{style:"position:relative;min-width:0"},row);
+    const tk=svg("svg",{class:"day-track",viewBox:"0 0 1000 22",preserveAspectRatio:"none"},cell);
+    svg("line",{x1:0,x2:1000,y1:11,y2:11,stroke:cssv("--grid"),"stroke-width":1,"vector-effect":"non-scaling-stroke"},tk);
+    // other closures the same day, faded, for context
+    const others=(byDay[e.d]||[]).filter(o=>o!==e);
+    for(const o of others){
+      const oiv=interval(o);
+      const fx0=dx(oiv[0]), fx1=Math.max(dx(oiv[1]),fx0+2);
+      const fa=svg("a",{href:o.u,target:"_blank",rel:"noopener"},tk);
+      const fr=svg("rect",{x:fx0,y:5,width:fx1-fx0,height:12,rx:2,fill:cssv(oiv[2]?"--seq300":"--s1"),opacity:.3,class:"day-seg"},fa);
+      hover(fr,()=>[["also closed "+fmtT(oiv[0])+(oiv[2]?" → next day":" – "+fmtT(oiv[1]))],
+        ["another closure the same day"],["click → closure post ↗"]]);
+    }
+    // open-again segment: reopening → the day's next closure, or 7pm
+    if(!overnight && iv[1]<DAY_END){
+      const nxt=Math.min(...others.map(o=>interval(o)[0]).filter(t=>t>=iv[1]),DAY_END);
+      const ox0=dx(iv[1])+2, ox1=dx(nxt)-(nxt<DAY_END?2:0);
+      const oa=e.ru? svg("a",{href:e.ru,target:"_blank",rel:"noopener"},tk) : tk;
+      const orect=svg("rect",{x:ox0,y:8,width:Math.max(ox1-ox0,0),height:6,rx:2,fill:cssv("--s2"),opacity:.5,class:"day-seg"},oa);
+      hover(orect,()=>{
+        const lines=[["open again "+fmtT(iv[1])+" – "+(nxt<DAY_END?fmtT(nxt):"7 pm")]];
+        lines.push(["after "+fmtDur(r.dur)+" closed"+(r.known?"":" (estimated)")]);
+        if(nxt<DAY_END) lines.push(["closed again at "+fmtT(nxt)+" that day"]);
+        if(e.ru) lines.push(["click → reopening post ↗"]);
+        return lines;
+      });
+    }
+    // closed segment
+    const x0=dx(iv[0]), x1=Math.max(dx(iv[1]),x0+2);
+    const a=svg("a",{href:e.u,target:"_blank",rel:"noopener"},tk);
+    const rect=svg("rect",{x:x0,y:5,width:x1-x0,height:12,rx:2,fill:cssv(overnight?"--seq300":"--s1"),class:"day-seg"},a);
+    hover(rect,()=>{
+      const lines=[["closed "+fmtT(iv[0])+(overnight?" → next day":" – "+fmtT(iv[1]))]];
+      if(overnight){ lines.push([e.rn&&e.rm!=null? "reopened next day "+fmtT(e.rm) : "reopened next morning"]); }
+      else lines.push([fmtDur(r.dur)+" closed"+(r.known?"":" (estimated)")]);
+      lines.push([dd.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"})]);
+      const wl=wxLine(e.d); if(wl) lines.push([wl]);
+      lines.push(["click bar → closure post ↗"]);
+      return lines;
+    });
+    if(!overnight){
+      const fmtDurC=m=>{ m=Math.round(m/5)*5; if(m<60) return m+"m"; const h=Math.floor(m/60),mm=m%60; return h+"h"+(mm?" "+mm+"m":""); };
+      const lb=el("span",{class:"seg-dur"},cell,(r.known?"":"~")+fmtDurC(r.dur));
+      lb.style.left=(x0+x1)/20+"%";
+    }
+    svg("line",{x1:selX,x2:selX,y1:1,y2:21,stroke:cssv("--ink"),"stroke-width":1.5,opacity:.55,"vector-effect":"non-scaling-stroke"},tk);
   }
 }
 
@@ -1021,10 +1244,18 @@ function renderAll(){
       $("dtSeg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));
       renderAll(); });
   });
-  $("mSel").addEventListener("input",e=>{ state.month=+e.target.value; renderAll(); });
+  $("mSel").addEventListener("input",e=>{ state.month=e.target.value==="all"?"all":+e.target.value; renderAll(); });
   $("wSel").addEventListener("input",e=>{ state.wx=e.target.value; const d=buildDays(); renderPlanner(d); renderCum(d); });
   $("tSel").addEventListener("input",e=>{ state.arr=+e.target.value; renderPlanner(buildDays()); if(cumTimeUpdate)cumTimeUpdate(state.arr); });
   $("cSel").addEventListener("input",e=>{ state.closedAt=+e.target.value; renderReopen(); });
+  // reopen-widget filters (independent of the planner's)
+  $("rmSel").addEventListener("input",e=>{ rState.month=e.target.value==="all"?"all":+e.target.value; renderReopen(); });
+  $("rwSel").addEventListener("input",e=>{ rState.wx=e.target.value; renderReopen(); });
+  $("rdSeg").querySelectorAll("button").forEach(btn=>{
+    btn.addEventListener("click",()=>{ rState.dt=btn.dataset.rdt;
+      $("rdSeg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===btn));
+      renderReopen(); });
+  });
   // event-log filters + sort (re-render just the log)
   $("logYear").addEventListener("input",e=>{ logState.year=e.target.value; drawLog(); });
   $("logDay").addEventListener("input",e=>{ logState.day=e.target.value; drawLog(); });
